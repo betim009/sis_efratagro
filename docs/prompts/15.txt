@@ -1,0 +1,213 @@
+PROMPT 15 — MÓDULO DE LOGS DE AUDITORIA COMPLETO E RASTREABILIDADE DE ALTERAÇÕES
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com foco em auditoria, rastreabilidade e segurança operacional.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui prompts anteriores cobrindo:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- fornecedores
+- clientes
+- produtos
+- estoque
+- vendas
+- financeiro
+- frota
+- entregas
+- dashboard
+- relatórios
+- frete
+
+Agora preciso construir o módulo de Logs de Auditoria, respeitando o SRS do projeto.
+
+Segundo o SRS, o sistema deve garantir:
+- log de auditoria
+- registro de quem fez o quê e quando
+- rastreabilidade de alterações
+- segurança operacional
+- apoio à governança e investigação de inconsistências
+
+Esse módulo deve ficar preparado para integração com todos os demais módulos do ERP.
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado com estrutura para logs_auditoria
+- Módulos de negócio principais já estruturados
+- Estrutura pronta para integração transversal entre módulos
+
+OBJETIVO:
+Construir o módulo completo de auditoria e rastreabilidade, registrando alterações críticas do sistema de forma profissional, segura, reutilizável e pronta para uso real em produção.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de auditoria espalhada de forma bagunçada
+- Não fazer controller gordo
+- O sistema de auditoria deve ser reutilizável por todos os módulos
+- Registrar informações suficientes para rastreabilidade real
+- O módulo deve respeitar autenticação e autorização
+- Sempre que fizer uma decisão importante sobre o que registrar, explique de forma curta e objetiva
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Estruturar serviço central de auditoria
+2. Registrar ações de CREATE
+3. Registrar ações de UPDATE
+4. Registrar ações de INACTIVATE ou alterações de status
+5. Registrar ações de DELETE lógico, se houver
+6. Registrar ações de autenticação relevantes
+7. Registrar before e after quando aplicável
+8. Registrar usuário responsável
+9. Registrar módulo/tabela afetada
+10. Registrar data/hora da ação
+11. Registrar contexto complementar
+12. Permitir consulta de logs de auditoria
+13. Permitir filtros por módulo, usuário, ação e período
+14. Preparar integração com relatórios e segurança
+
+AÇÕES ESPERADAS:
+- CREATE
+- UPDATE
+- INACTIVATE
+- STATUS_CHANGE
+- LOGIN
+- LOGOUT
+- PASSWORD_RESET_REQUEST
+- PASSWORD_RESET_CONFIRM
+- PAYMENT_REGISTER
+- STOCK_MOVEMENT
+- SALE_CONFIRM
+- DELIVERY_STATUS_CHANGE
+- FREIGHT_REAL_COST_UPDATE
+- outras ações equivalentes que façam sentido e sejam justificadas
+
+ENTIDADES ENVOLVIDAS:
+- logs_auditoria
+- usuarios
+- e, de forma transversal, todos os módulos relevantes:
+  - fornecedores
+  - clientes
+  - produtos
+  - estoque
+  - vendas
+  - duplicatas
+  - pagamentos
+  - entregas
+  - fretes
+  - veiculos
+  - manutencoes
+
+CAMPOS IMPORTANTES DO LOG DE AUDITORIA:
+- id
+- usuario_id
+- modulo
+- entidade
+- entidade_id
+- acao
+- dados_antes
+- dados_depois
+- descricao
+- ip_origem, se você decidir suportar e justificar
+- user_agent, se você decidir suportar e justificar
+- created_at
+
+VALIDAÇÕES IMPORTANTES:
+- acao deve aceitar apenas valores válidos
+- modulo e entidade devem ser coerentes
+- entidade_id deve existir quando aplicável
+- usuario_id deve ser obtido do usuário autenticado quando houver
+- não quebrar o fluxo principal caso o log falhe sem tratamento adequado
+- consultas devem aceitar filtros válidos
+- tratar ausência de dados de forma consistente
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- auditoria deve ser transversal e reutilizável
+- operações críticas devem registrar estado antes e depois quando possível
+- nem toda ação precisa ter before/after, mas ações de alteração sim
+- logs não devem depender de lógica duplicada em cada controller
+- o sistema deve permitir investigar:
+  - quem alterou
+  - o que alterou
+  - quando alterou
+  - qual era o valor antes
+  - qual ficou depois
+- a estrutura deve ficar pronta para uso administrativo, relatórios internos e segurança
+- a consulta de logs deve ser paginável ou preparada para isso
+- o módulo deve ser robusto sem poluir excessivamente o restante do backend
+
+ROTAS ESPERADAS NO MÍNIMO:
+- GET /auditoria/logs
+- GET /auditoria/logs/:id
+- GET /auditoria/logs/usuario/:usuarioId
+- GET /auditoria/logs/modulo/:modulo
+- GET /auditoria/logs/entidade/:entidade/:entidadeId
+- GET /auditoria/logs/acao/:acao
+
+PARÂMETROS DE FILTRO ESPERADOS:
+- usuarioId
+- modulo
+- entidade
+- entidadeId
+- acao
+- dataInicio
+- dataFim
+- page
+- limit
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/auditoriaController.js
+- src/services/auditoriaService.js
+- src/models/auditoriaModel.js
+- src/routes/auditoriaRoutes.js
+- helper ou util reutilizável para registrar logs
+- middleware ou estratégia transversal de integração, quando fizer sentido
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- auditoria.read
+- auditoria.read.all
+- auditoria.read.by_user
+- auditoria.read.by_module
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estratégia de auditoria transversal
+3. Estrutura dos arquivos
+4. Código completo dos arquivos
+5. Estratégia para registrar logs sem poluir controllers
+6. Rotas protegidas com autenticação e autorização
+7. Validações de filtros
+8. Exemplo de uso em módulos como clientes, vendas e pagamentos
+9. Exemplo de resposta da API
+10. Estratégia para before/after
+11. Estrutura preparada para relatórios internos e segurança
+12. Instrução curta de integração com o restante do backend
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não registrar logs de forma inconsistente
+- Não espalhar lógica de auditoria de forma bagunçada
+- Não ignorar before/after em operações críticas
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_auditoria.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de auditoria estiver completo
+- O serviço central de logs estiver estruturado
+- Os filtros de consulta estiverem contemplados
+- A integração transversal com os demais módulos estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown
