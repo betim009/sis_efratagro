@@ -1,0 +1,143 @@
+PROMPT 19 — INTEGRAÇÃO FRONTEND + BACKEND (AXIOS, AUTH, ROTAS PROTEGIDAS E PERMISSÕES)
+
+Você é um Engenheiro Full Stack Sênior especializado em React, Vite, Material UI, Axios, React Router, Node.js, Express e PostgreSQL para sistemas ERP profissionais.
+
+CONTEXTO:
+Estou construindo um ERP comercial completo com frontend em React + Vite e backend em Node.js + Express + PostgreSQL.
+Os prompts anteriores já definiram:
+- backend completo por módulos
+- autenticação e autorização com JWT
+- dashboard
+- relatórios
+- notificações
+- auditoria
+- frontend base
+- telas principais do frontend
+
+Agora preciso construir a camada de integração real entre frontend e backend, garantindo autenticação, controle de sessão, consumo padronizado da API, proteção de rotas e preparação para permissões granulares no frontend.
+
+O QUE TENHO ATÉ AQUI:
+- Base do frontend planejada
+- AuthContext planejado
+- Axios planejado
+- ProtectedRoute planejado
+- Backend com autenticação JWT e permissões granulares planejado
+- Módulos principais já desenhados no frontend e backend
+
+OBJETIVO:
+Construir a camada completa de integração entre frontend e backend, com Axios configurado, interceptors, login real, persistência de sessão, logout, proteção de rotas, controle de permissões e tratamento padronizado de erros.
+
+REGRAS:
+- Use React com JavaScript
+- Não use TypeScript
+- Use Axios
+- Use React Router
+- Não criar integração bagunçada
+- Não espalhar lógica de autenticação por vários componentes sem padrão
+- Não acoplar diretamente toda chamada da API dentro das páginas
+- A solução deve ser profissional, reutilizável e escalável
+- O frontend deve ficar preparado para consumo real do backend
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Configuração completa do Axios
+2. Base URL por variável de ambiente
+3. Interceptor para envio automático de token
+4. Interceptor para tratamento de 401 e 403
+5. Login real integrado ao backend
+6. Logout
+7. Persistência de sessão
+8. Recuperação do usuário autenticado
+9. Proteção de rotas privadas
+10. Estrutura para permissões granulares no frontend
+11. Hook utilitário para autenticação
+12. Hook utilitário para permissões
+13. Tratamento global de erro de API
+14. Estratégia para redirecionamento por sessão expirada
+15. Preparação para uso em todos os módulos do sistema
+
+INTEGRAÇÕES ESPERADAS COM O BACKEND:
+- POST /auth/login
+- GET /auth/me
+- rotas protegidas com JWT
+- respostas com permissões por perfil
+- tratamento para 401
+- tratamento para 403
+
+ESTRUTURAS IMPORTANTES QUE DEVEM EXISTIR:
+- api.js com Axios configurado
+- authService.js
+- session storage ou local storage, com justificativa
+- AuthContext funcional
+- useAuth hook
+- usePermissions hook
+- ProtectedRoute
+- configuração de rotas privadas e por permissão
+- tratamento centralizado de erro
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- token JWT deve ser enviado automaticamente nas requisições autenticadas
+- usuário autenticado deve permanecer logado após refresh, se a estratégia escolhida suportar isso
+- sessão inválida deve redirecionar adequadamente para login
+- frontend deve suportar páginas com acesso geral autenticado e páginas com acesso por permissão
+- o sistema deve permitir validar permissões como:
+  - dashboard.read
+  - clientes.read
+  - produtos.read
+  - vendas.create
+  - financeiro.read
+  - relatorios.export
+  - auditoria.read
+- a lógica de permissões deve ser reutilizável e limpa
+- a base deve ficar preparada para crescimento de todos os módulos do ERP
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/services/api.js
+- src/services/authService.js
+- src/contexts/AuthContext.jsx
+- src/hooks/useAuth.js
+- src/hooks/usePermissions.js
+- src/routes/ProtectedRoute.jsx
+- src/routes/PermissionRoute.jsx, se fizer sentido
+- ajustes em AppRoutes.jsx
+- utils de session/token, se fizer sentido
+- .env.example para frontend
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da estratégia de integração
+2. Estrutura dos arquivos
+3. Código completo dos arquivos
+4. Estratégia de persistência de sessão
+5. Estratégia dos interceptors
+6. Estratégia para tratamento de 401 e 403
+7. Estratégia de permissões no frontend
+8. Exemplo de login integrado
+9. Exemplo de proteção de rota por autenticação
+10. Exemplo de proteção de rota por permissão
+11. Exemplo de uso em páginas do sistema
+12. Instrução curta de integração com o restante do frontend
+
+PONTOS IMPORTANTES:
+- Não fazer integração amadora
+- Não salvar dados de forma desorganizada
+- Não espalhar validação de token por toda a aplicação
+- Não ignorar tratamento de sessão expirada
+- Não quebrar o padrão do frontend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  integracao_frontend_backend.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- A integração frontend + backend estiver estruturada
+- O login real estiver preparado
+- A persistência de sessão estiver contemplada
+- As rotas protegidas estiverem organizadas
+- A base de permissões no frontend estiver pronta
+- O conteúdo final estiver consolidado em um único documento markdown
