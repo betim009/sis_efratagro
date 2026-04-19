@@ -1,0 +1,221 @@
+PROMPT 16 — MÓDULO DE NOTIFICAÇÕES INTERNAS E BASE PARA ENVIO POR E-MAIL
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com foco em notificações operacionais, alertas internos e integração futura com envio por e-mail.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui prompts anteriores cobrindo:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- fornecedores
+- clientes
+- produtos
+- estoque
+- vendas
+- financeiro
+- frota
+- entregas
+- dashboard
+- relatórios
+- frete
+- auditoria
+
+Agora preciso construir o módulo de Notificações, respeitando o SRS do projeto.
+
+Segundo o SRS, o sistema deve possuir alertas e notificações para eventos como:
+- estoque abaixo do mínimo
+- venda futura próxima do vencimento
+- duplicata vencida
+- manutenção preventiva pendente
+- entrega não concluída
+- atualização relevante de status de entrega
+
+Também existe a possibilidade futura de:
+- envio por e-mail
+- integração com dashboard
+- central de notificações no frontend
+
+Esse módulo deve ficar preparado para integração transversal com todos os módulos do ERP.
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Módulos principais do ERP já estruturados
+- Dashboard e relatórios já previstos
+- Auditoria já prevista
+- Estrutura pronta para integração transversal entre módulos
+
+OBJETIVO:
+Construir o módulo completo de notificações internas, com leitura, listagem, marcação como lida, geração por gatilho e base preparada para expansão futura com e-mail.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar lógica de notificação espalhada de forma bagunçada
+- Não fazer controller gordo
+- O sistema de notificações deve ser reutilizável por todos os módulos
+- O módulo deve respeitar autenticação e autorização
+- As notificações devem ter estrutura consistente para o frontend consumir
+- Sempre que fizer decisão importante sobre gatilhos, explique de forma curta e objetiva
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Estruturar entidade de notificações
+2. Criar serviço central de geração de notificação
+3. Gerar notificação interna por gatilho de negócio
+4. Listar notificações do usuário
+5. Buscar notificação por id
+6. Marcar notificação como lida
+7. Marcar todas como lidas
+8. Filtrar notificações por tipo, status e período
+9. Contar notificações não lidas
+10. Estruturar prioridade de notificação
+11. Preparar base para envio futuro por e-mail
+12. Preparar integração com dashboard e central de notificações do frontend
+
+TIPOS DE NOTIFICAÇÃO ESPERADOS:
+- ESTOQUE_BAIXO
+- VENDA_FUTURA_PROXIMA
+- DUPLICATA_VENCIDA
+- DUPLICATA_VENCENDO
+- MANUTENCAO_PENDENTE
+- ENTREGA_NAO_CONCLUIDA
+- ENTREGA_CONCLUIDA
+- STATUS_ENTREGA_ALTERADO
+- FRETE_DIVERGENTE
+- ALERTA_GERAL
+
+PRIORIDADES ESPERADAS:
+- BAIXA
+- MEDIA
+- ALTA
+- CRITICA
+
+STATUS ESPERADOS:
+- NAO_LIDA
+- LIDA
+- ARQUIVADA, se você decidir suportar e justificar
+
+ENTIDADES ENVOLVIDAS:
+- notificacoes
+- usuarios
+- clientes, vendas, duplicatas, estoque, entregas, manutencoes, fretes e outras entidades relacionadas aos gatilhos
+
+CAMPOS IMPORTANTES DA NOTIFICAÇÃO:
+- id
+- usuario_id
+- tipo
+- titulo
+- mensagem
+- prioridade
+- status
+- entidade
+- entidade_id
+- metadata
+- lida_em
+- created_at
+- updated_at
+
+VALIDAÇÕES IMPORTANTES:
+- usuario_id obrigatório
+- tipo deve aceitar apenas valores válidos
+- prioridade deve aceitar apenas valores válidos
+- status deve aceitar apenas valores válidos
+- título obrigatório
+- mensagem obrigatória
+- entidade e entidade_id devem ser coerentes quando enviados
+- não permitir acesso a notificação de outro usuário sem permissão administrativa
+- filtros de data devem ser válidos
+- tratar ausência de dados de forma consistente
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- notificações devem ser geradas por serviço central reutilizável
+- o mesmo evento de negócio pode gerar notificações para perfis diferentes
+- por exemplo:
+  - estoque baixo → estoquista e gerente
+  - duplicata vencida → financeiro e gerente
+  - entrega não concluída → vendedor responsável
+  - manutenção pendente → responsável da frota
+- a estrutura deve servir para consumo no frontend, incluindo badge de não lidas
+- deve existir contagem de notificações pendentes
+- a solução deve ficar preparada para extensão futura com e-mail, sem acoplar agora o envio real
+- as notificações devem ser facilmente integráveis ao dashboard
+- evitar duplicação desnecessária de lógica em cada módulo
+
+ROTAS ESPERADAS NO MÍNIMO:
+- GET /notificacoes
+- GET /notificacoes/:id
+- GET /notificacoes/nao-lidas/contagem
+- PATCH /notificacoes/:id/marcar-lida
+- PATCH /notificacoes/marcar-todas-lidas
+- GET /notificacoes/tipo/:tipo
+- GET /notificacoes/status/:status
+
+PARÂMETROS DE FILTRO ESPERADOS:
+- tipo
+- status
+- prioridade
+- dataInicio
+- dataFim
+- page
+- limit
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/notificacaoController.js
+- src/services/notificacaoService.js
+- src/models/notificacaoModel.js
+- src/routes/notificacaoRoutes.js
+- helper ou util reutilizável para disparo de notificações
+- estrutura base para provider de e-mail futuro, se fizer sentido
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- notificacoes.read.own
+- notificacoes.read.all
+- notificacoes.update.own
+- notificacoes.count.own
+- notificacoes.trigger.system
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estratégia de notificações internas
+3. Estrutura dos arquivos
+4. Código completo dos arquivos
+5. Estratégia para geração por gatilhos sem poluir controllers
+6. Rotas protegidas com autenticação e autorização
+7. Validações de filtros
+8. Exemplo de uso em módulos como entregas, financeiro e estoque
+9. Exemplo de resposta da API
+10. Estrutura de contagem de não lidas
+11. Estrutura preparada para integração futura com e-mail
+12. Estrutura preparada para dashboard e frontend
+13. Instrução curta de integração com o restante do backend
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não criar notificações soltas e inconsistentes
+- Não espalhar lógica de notificação de forma bagunçada
+- Não ignorar consumo futuro pelo frontend
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_notificacoes.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de notificações estiver completo
+- O serviço central de notificação estiver estruturado
+- As rotas de consulta e marcação estiverem prontas
+- A contagem de não lidas estiver contemplada
+- A base para e-mail futuro estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown
