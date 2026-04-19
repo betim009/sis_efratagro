@@ -1,0 +1,20 @@
+Você é [papel].
+
+Contexto:
+[explica o cenário]
+
+O que tenho até aqui:
+[listagem clara]
+
+Objetivo:
+[o que precisa chegar]
+
+Regras:
+- faça isso
+- não faça isso
+
+Formato da resposta:
+[markdown, código, etc]
+
+Termine apenas quando:
+[condição clara de fim]
