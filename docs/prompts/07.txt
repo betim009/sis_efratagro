@@ -1,0 +1,219 @@
+PROMPT 07 — MÓDULO DE ESTOQUE POR LOCAL E MOVIMENTAÇÕES
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com controle de estoque.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- módulos de fornecedores, clientes e produtos
+- padrão profissional de rotas, services, models e controllers
+
+Agora preciso construir o módulo de Estoque, respeitando o SRS do projeto.
+
+Segundo o SRS, o módulo de Estoque deve permitir:
+- cadastrar múltiplos locais de armazenamento
+- controlar saldo de estoque por produto e por local
+- registrar entradas de estoque
+- registrar saídas de estoque
+- registrar transferências entre locais
+- manter rastreabilidade completa das movimentações
+- notificar ou permitir consulta de produtos com estoque mínimo
+- bloquear venda quando estoque for zero, de forma configurável no futuro
+
+Também é exigido que toda movimentação tenha:
+- data
+- responsável
+- motivo
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Controle de permissões
+- Produtos já cadastráveis
+- Estrutura pronta para integração entre módulos
+
+OBJETIVO:
+Construir o módulo completo de Estoque por Local e Movimentações, de forma profissional, auditável, segura e pronta para uso real no ERP.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de negócio diretamente no controller
+- Não fazer controller gordo
+- Usar validações reais
+- Toda movimentação deve impactar corretamente o saldo do estoque
+- Toda movimentação deve ser rastreável
+- Não permitir saldo inconsistente
+- Não permitir saída ou transferência acima do saldo disponível
+- Toda rota deve respeitar autenticação e autorização
+- O módulo deve ficar preparado para integração com vendas e alertas
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. CRUD de locais de estoque
+2. Consulta de saldo por produto e local
+3. Registro de entrada de estoque
+4. Registro de saída de estoque
+5. Transferência entre locais
+6. Listagem de movimentações
+7. Filtro de movimentações por produto, local, tipo e período
+8. Consulta de produtos abaixo do estoque mínimo
+9. Preparação da regra para bloqueio de venda com estoque zero
+
+ENTIDADES ENVOLVIDAS:
+- locais_estoque
+- estoques
+- movimentacoes_estoque
+- produtos
+- usuarios
+
+TIPOS DE MOVIMENTAÇÃO ESPERADOS:
+- ENTRADA_COMPRA
+- ENTRADA_DEVOLUCAO_CLIENTE
+- ENTRADA_AJUSTE
+- SAIDA_VENDA
+- SAIDA_DEVOLUCAO_FORNECEDOR
+- SAIDA_PERDA
+- SAIDA_AJUSTE
+- TRANSFERENCIA_SAIDA
+- TRANSFERENCIA_ENTRADA
+
+CAMPOS IMPORTANTES:
+LOCAIS DE ESTOQUE:
+- id
+- nome
+- descricao
+- status
+- created_at
+- updated_at
+
+ESTOQUE:
+- id
+- produto_id
+- local_id
+- quantidade
+- created_at
+- updated_at
+
+MOVIMENTAÇÃO:
+- id
+- produto_id
+- local_id
+- tipo_movimentacao
+- quantidade
+- usuario_id
+- motivo
+- observacao
+- referencia_tipo
+- referencia_id
+- created_at
+
+VALIDAÇÕES IMPORTANTES:
+- nome do local obrigatório
+- não permitir local duplicado com mesmo nome em contexto equivalente
+- produto_id deve existir
+- local_id deve existir
+- quantidade deve ser maior que zero
+- tipo_movimentacao deve aceitar apenas valores válidos
+- motivo deve ser obrigatório nas movimentações
+- usuario_id deve vir do usuário autenticado
+- não permitir saída com saldo insuficiente
+- não permitir transferência para o mesmo local
+- tratar produto inexistente, local inexistente e estoque inexistente corretamente
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- entrada soma quantidade ao estoque
+- saída reduz quantidade do estoque
+- transferência gera duas movimentações coerentes:
+  - saída no local de origem
+  - entrada no local de destino
+- o saldo final nunca pode ficar negativo
+- o estoque deve ser criado automaticamente quando ainda não existir vínculo produto/local e a operação permitir isso
+- movimentações devem ficar preparadas para integração com vendas e auditoria
+- consulta de produtos abaixo do estoque mínimo deve considerar estoque consolidado ou por local, conforme você definir e justificar
+- deixar preparada uma função ou service para futura validação de disponibilidade de estoque em vendas
+
+ROTAS ESPERADAS NO MÍNIMO:
+LOCAIS:
+- POST /estoque/locais
+- GET /estoque/locais
+- GET /estoque/locais/:id
+- PUT /estoque/locais/:id
+- PATCH /estoque/locais/:id/inativar
+
+ESTOQUE E MOVIMENTAÇÕES:
+- GET /estoque/saldos
+- GET /estoque/saldos/produto/:produtoId
+- GET /estoque/saldos/produto/:produtoId/local/:localId
+- POST /estoque/movimentacoes/entrada
+- POST /estoque/movimentacoes/saida
+- POST /estoque/movimentacoes/transferencia
+- GET /estoque/movimentacoes
+- GET /estoque/alertas/baixo-estoque
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/estoqueController.js
+- src/services/estoqueService.js
+- src/models/estoqueModel.js
+- src/models/localEstoqueModel.js
+- src/models/movimentacaoEstoqueModel.js
+- src/routes/estoqueRoutes.js
+- validações e helpers necessários
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- estoque.locais.create
+- estoque.locais.read
+- estoque.locais.update
+- estoque.movimentacoes.create
+- estoque.movimentacoes.read
+- estoque.saldos.read
+- estoque.alertas.read
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estrutura dos arquivos
+3. Código completo dos arquivos
+4. Rotas protegidas com autenticação e autorização
+5. Validações de entrada
+6. Tratamento de erros
+7. Exemplo de payload para entrada
+8. Exemplo de payload para saída
+9. Exemplo de payload para transferência
+10. Exemplo de resposta da API
+11. Estratégia usada para atualização de saldo
+12. Estrutura para consulta de baixo estoque
+13. Estrutura preparada para futura integração com vendas
+14. Instrução curta de integração com o app.js e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não manipular saldo de forma frágil
+- Não permitir estoque negativo
+- Não deixar transferência incompleta
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_estoque_e_movimentacoes.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de estoque estiver completo
+- O CRUD de locais estiver funcional
+- As movimentações estiverem implementadas
+- As validações estiverem implementadas
+- As consultas de saldo estiverem prontas
+- A estrutura para alerta de baixo estoque estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown

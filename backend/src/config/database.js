@@ -28,6 +28,8 @@ pool.on("error", (error) => {
 
 const query = (text, params = []) => pool.query(text, params);
 
+const getClient = () => pool.connect();
+
 const testConnection = async () => {
   await query("SELECT 1");
 };
@@ -39,6 +41,7 @@ const closePool = async () => {
 module.exports = {
   pool,
   query,
+  getClient,
   testConnection,
   closePool
 };

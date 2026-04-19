@@ -39,6 +39,29 @@ CREATE TABLE IF NOT EXISTS usuarios (
   CONSTRAINT usuarios_status_check CHECK (status IN ('ATIVO', 'INATIVO', 'BLOQUEADO'))
 );
 
+CREATE TABLE IF NOT EXISTS sessoes_usuario (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  token_jti UUID NOT NULL UNIQUE,
+  ip_origem INET,
+  user_agent TEXT,
+  ultimo_acesso_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expira_em TIMESTAMPTZ NOT NULL,
+  revogada_em TIMESTAMPTZ,
+  motivo_revogacao VARCHAR(120),
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS tokens_reset_senha (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  token_hash VARCHAR(255) NOT NULL UNIQUE,
+  expira_em TIMESTAMPTZ NOT NULL,
+  utilizado_em TIMESTAMPTZ,
+  ip_origem INET,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS fornecedores (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tipo_pessoa VARCHAR(2) NOT NULL DEFAULT 'PJ',
@@ -357,13 +380,21 @@ CREATE TABLE IF NOT EXISTS logs_auditoria (
   ip_origem INET,
   user_agent TEXT,
   criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT logs_auditoria_acao_check CHECK (acao IN ('INSERT', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT'))
+  CONSTRAINT logs_auditoria_acao_check CHECK (acao IN ('INSERT', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'PASSWORD_RESET_REQUEST', 'PASSWORD_RESET_CONFIRM'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_perfil_permissoes_perfil_id ON perfil_permissoes (perfil_id);
 
 CREATE INDEX IF NOT EXISTS idx_usuarios_perfil_id ON usuarios (perfil_id);
 CREATE INDEX IF NOT EXISTS idx_usuarios_status ON usuarios (status);
+CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios (email);
+
+CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_usuario_id ON sessoes_usuario (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_token_jti ON sessoes_usuario (token_jti);
+CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_expira_em ON sessoes_usuario (expira_em);
+
+CREATE INDEX IF NOT EXISTS idx_tokens_reset_senha_usuario_id ON tokens_reset_senha (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_tokens_reset_senha_expira_em ON tokens_reset_senha (expira_em);
 
 CREATE INDEX IF NOT EXISTS idx_fornecedores_status ON fornecedores (status);
 CREATE INDEX IF NOT EXISTS idx_fornecedores_razao_social ON fornecedores (razao_social);

@@ -8,7 +8,8 @@ const requiredEnvVars = [
   "DB_PORT",
   "DB_NAME",
   "DB_USER",
-  "DB_PASSWORD"
+  "DB_PASSWORD",
+  "JWT_SECRET"
 ];
 
 requiredEnvVars.forEach((envVar) => {
@@ -30,5 +31,18 @@ module.exports = {
   dbPassword: process.env.DB_PASSWORD,
   dbPoolMax: Number(process.env.DB_POOL_MAX || 10),
   dbIdleTimeout: Number(process.env.DB_IDLE_TIMEOUT || 30000),
-  dbConnectionTimeout: Number(process.env.DB_CONNECTION_TIMEOUT || 5000)
+  dbConnectionTimeout: Number(process.env.DB_CONNECTION_TIMEOUT || 5000),
+  jwtSecret: process.env.JWT_SECRET,
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "8h",
+  jwtIssuer: process.env.JWT_ISSUER || "sis-efratagro-api",
+  jwtAudience: process.env.JWT_AUDIENCE || "sis-efratagro-app",
+  sessionIdleTimeoutMinutes: Number(
+    process.env.SESSION_IDLE_TIMEOUT_MINUTES || 30
+  ),
+  sessionAbsoluteTimeoutHours: Number(
+    process.env.SESSION_ABSOLUTE_TIMEOUT_HOURS || 8
+  ),
+  passwordResetTokenTtlMinutes: Number(
+    process.env.PASSWORD_RESET_TOKEN_TTL_MINUTES || 30
+  )
 };
