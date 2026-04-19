@@ -1,0 +1,144 @@
+PROMPT 20 — AMBIENTE COMPLETO COM DOCKER E DOCKER COMPOSE PARA FRONTEND, BACKEND E POSTGRESQL
+
+Você é um Engenheiro DevOps / Full Stack Sênior especializado em Docker, Docker Compose, Node.js, React com Vite e PostgreSQL para sistemas web profissionais.
+
+CONTEXTO:
+Estou construindo um ERP comercial completo com:
+- frontend em React + Vite
+- backend em Node.js + Express
+- banco de dados PostgreSQL
+
+O sistema já foi planejado em prompts anteriores, cobrindo:
+- backend completo por módulos
+- autenticação e autorização
+- dashboard
+- relatórios
+- notificações
+- auditoria
+- frontend base
+- telas principais
+- integração frontend + backend
+
+Agora preciso estruturar todo o ambiente de desenvolvimento com Docker e Docker Compose, de forma profissional, organizada e fácil de subir localmente.
+
+O QUE TENHO ATÉ AQUI:
+- Projeto dividido em frontend e backend
+- Stack definida no SRS:
+  - React + Vite
+  - Node.js + Express
+  - PostgreSQL
+  - Docker
+  - Docker Compose
+- Estrutura geral do sistema já definida
+- Necessidade de ambiente padronizado para desenvolvimento
+
+OBJETIVO:
+Construir a estrutura completa de Docker e Docker Compose para o projeto, incluindo frontend, backend e banco PostgreSQL, com configuração adequada para desenvolvimento local, volumes, variáveis de ambiente, portas, persistência e comando de inicialização.
+
+REGRAS:
+- Use Docker e Docker Compose
+- O ambiente deve ser voltado para desenvolvimento
+- Não criar configuração bagunçada
+- Não ignorar volumes
+- Não ignorar persistência do PostgreSQL
+- Não ignorar variáveis de ambiente
+- Não fazer solução improvisada
+- O resultado deve ficar pronto para subir o sistema completo localmente
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Dockerfile do backend
+2. Dockerfile do frontend
+3. docker-compose.yml do projeto
+4. Volumes para desenvolvimento
+5. Volume para persistência do PostgreSQL
+6. Variáveis de ambiente para frontend, backend e banco
+7. Rede entre containers
+8. Comandos de inicialização
+9. Estratégia para hot reload no backend
+10. Estratégia para hot reload no frontend
+11. Estratégia para criação do banco
+12. Preparação para executar migrations.sql e seeders.sql
+13. Organização recomendada de arquivos Docker no projeto
+
+ESTRUTURA ESPERADA:
+/erp-comercial
+  /frontend
+  /backend
+  docker-compose.yml
+  .env
+  .env.example
+
+VOCÊ PODE MELHORAR ESSA ORGANIZAÇÃO SE FIZER SENTIDO, DESDE QUE CONTINUE CLARA E PROFISSIONAL.
+
+SERVIÇOS ESPERADOS NO DOCKER COMPOSE:
+- frontend
+- backend
+- postgres
+
+PORTAS SUGERIDAS:
+- frontend: 5173
+- backend: 3000
+- postgres: 5432
+
+O QUE DEVE FUNCIONAR:
+- subir tudo com um único comando
+- frontend acessando backend
+- backend acessando postgres
+- persistência dos dados do banco
+- projeto preparado para desenvolvimento diário
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- backend deve conseguir ler variáveis de ambiente do banco
+- frontend deve conseguir ler a URL base da API
+- postgres deve persistir dados mesmo após reiniciar container
+- ambiente deve ser simples de inicializar por outra pessoa do time
+- solução deve evitar o máximo de atrito comum em ambiente local
+- migrations.sql e seeders.sql devem ficar preparados para execução padronizada
+- a estrutura deve ser coerente com o restante do projeto ERP
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- backend/Dockerfile
+- frontend/Dockerfile
+- docker-compose.yml
+- .env.example
+- .dockerignore para frontend e backend, se fizer sentido
+- scripts auxiliares, se fizer sentido
+- instrução de uso clara
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da estratégia adotada
+2. Estrutura dos arquivos Docker
+3. Código completo dos Dockerfiles
+4. Código completo do docker-compose.yml
+5. Exemplo do .env.example
+6. Estratégia de volumes
+7. Estratégia de hot reload
+8. Estratégia para persistência do PostgreSQL
+9. Estratégia para migrations e seeders
+10. Passo a passo curto para subir o ambiente
+11. Dicas curtas para desenvolvimento diário
+
+PONTOS IMPORTANTES:
+- Não fazer configuração amadora
+- Não esquecer de volumes importantes
+- Não esquecer persistência do banco
+- Não deixar frontend e backend sem comunicação adequada
+- Não quebrar a coerência com a arquitetura do ERP
+- O resultado precisa ficar pronto para desenvolvimento real
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  ambiente_docker_erp.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O ambiente Docker estiver completo
+- O docker-compose estiver funcional
+- Frontend, backend e postgres estiverem contemplados
+- Os volumes e variáveis de ambiente estiverem definidos
+- O conteúdo final estiver consolidado em um único documento markdown
