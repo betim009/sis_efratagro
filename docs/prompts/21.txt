@@ -1,0 +1,174 @@
+PROMPT 21 — PREPARAÇÃO PARA PRODUÇÃO, BUILD, DEPLOY E ORGANIZAÇÃO DE AMBIENTE
+
+Você é um Engenheiro DevOps / Full Stack Sênior especializado em deploy de aplicações web com React, Node.js, PostgreSQL, Docker e boas práticas de produção para sistemas ERP profissionais.
+
+CONTEXTO:
+Estou construindo um ERP comercial completo com:
+- frontend em React + Vite
+- backend em Node.js + Express
+- banco PostgreSQL
+- ambiente local com Docker e Docker Compose
+
+Os prompts anteriores já cobriram:
+- backend completo por módulos
+- autenticação e autorização
+- dashboard
+- relatórios
+- notificações
+- auditoria
+- frontend base
+- telas principais
+- integração frontend + backend
+- ambiente Docker para desenvolvimento
+
+Agora preciso estruturar a preparação para produção, pensando em build, deploy, variáveis de ambiente, organização do servidor, segurança básica e operação real do sistema.
+
+O QUE TENHO ATÉ AQUI:
+- Arquitetura completa do ERP definida
+- Frontend planejado com React + Vite
+- Backend planejado com Node.js + Express
+- Banco PostgreSQL
+- Ambiente local com Docker Compose
+- Sistema pronto para sair da fase de desenvolvimento e caminhar para ambiente real
+
+OBJETIVO:
+Construir a estratégia completa de preparação para produção e deploy do ERP, incluindo build do frontend, execução do backend em produção, configuração de ambiente, organização de logs, segurança inicial e estrutura recomendada para VPS ou cloud.
+
+REGRAS:
+- Considere um cenário realista de produção
+- Pode usar Docker em produção se fizer sentido e justificar
+- Não criar solução improvisada
+- Não ignorar variáveis de ambiente
+- Não ignorar build do frontend
+- Não ignorar segurança básica do backend
+- Não ignorar logs
+- Não ignorar organização do deploy
+- O resultado deve ficar pronto para servir como base real de publicação do sistema
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Estratégia de deploy do frontend
+2. Estratégia de deploy do backend
+3. Estratégia de deploy do PostgreSQL
+4. Build do frontend para produção
+5. Execução do backend em modo produção
+6. Variáveis de ambiente separadas por contexto
+7. Organização de ambiente dev, staging e produção
+8. Estratégia de logs
+9. Estratégia de tratamento de erros em produção
+10. Estratégia de segurança básica
+11. Estratégia de backup básico do banco
+12. Estrutura recomendada para VPS ou cloud
+13. Estratégia de reverse proxy, se fizer sentido
+14. Estrutura para domínio, API e frontend
+15. Checklist de publicação
+
+CENÁRIOS QUE DEVEM SER CONSIDERADOS:
+- VPS simples
+- ambiente cloud básico
+- deploy com Docker
+- deploy sem Docker, se quiser comparar e justificar
+- frontend servido separadamente do backend ou por proxy, se fizer sentido
+
+ESTRUTURA DE AMBIENTE ESPERADA:
+- .env.development
+- .env.staging
+- .env.production
+- variáveis separadas para frontend e backend
+- boas práticas para não expor segredos
+
+PONTOS IMPORTANTES DE PRODUÇÃO QUE DEVEM SER COBERTOS:
+FRONTEND:
+- build com Vite
+- URL base da API
+- publicação em servidor web ou serviço estático
+
+BACKEND:
+- execução em modo produção
+- uso de variáveis de ambiente
+- configuração de CORS correta
+- tratamento de erro sem vazar detalhes sensíveis
+- estrutura para logs
+- processo de inicialização confiável
+
+BANCO:
+- credenciais seguras
+- política básica de backup
+- persistência de dados
+- cuidado com acesso externo
+
+SEGURANÇA BÁSICA:
+- HTTPS
+- JWT com segredo seguro
+- CORS controlado
+- rate limit, se fizer sentido e justificar
+- helmet, se fizer sentido e justificar
+- ocultação de detalhes sensíveis em erro
+- proteção mínima para ambiente real
+
+OBSERVABILIDADE E OPERAÇÃO:
+- logs de aplicação
+- logs de erro
+- logs de acesso, se fizer sentido
+- organização de arquivos e diretórios
+- estratégia básica de restart do backend
+- healthcheck, se fizer sentido
+
+ORGANIZAÇÃO DE DOMÍNIO / ACESSO:
+Exemplos esperados:
+- app.seudominio.com → frontend
+- api.seudominio.com → backend
+
+OU outra estratégia coerente, desde que justificada.
+
+ARQUIVOS / ITENS ESPERADOS NO MÍNIMO:
+- exemplo de .env.production para backend
+- exemplo de .env.production para frontend
+- script de build / start
+- configuração sugerida de execução do backend
+- exemplo de Dockerfile de produção ou estratégia equivalente
+- exemplo de organização de pastas no servidor
+- exemplo de configuração com reverse proxy, se optar por isso
+- checklist final de deploy
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da estratégia de produção adotada
+2. Comparação rápida entre opções de deploy
+3. Estrutura recomendada para produção
+4. Código ou exemplos de arquivos necessários
+5. Estratégia de build do frontend
+6. Estratégia de execução do backend
+7. Estratégia de variáveis de ambiente
+8. Estratégia de logs
+9. Estratégia de segurança básica
+10. Estratégia de backup básico do banco
+11. Exemplo de organização em VPS
+12. Exemplo de organização com domínio e API
+13. Checklist final de publicação
+14. Consolidação final em documento markdown
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não ignorar ambiente de produção real
+- Não expor segredos em arquivos incorretos
+- Não deixar build e execução vagos
+- Não quebrar a coerência com toda a arquitetura do ERP
+- O resultado precisa ficar pronto para servir como guia real de deploy
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma exemplos importantes
+- Mostre arquivos e configurações necessárias
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  deploy_producao_erp.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- A estratégia de produção estiver completa
+- O build do frontend estiver contemplado
+- A execução do backend em produção estiver contemplada
+- As variáveis de ambiente estiverem organizadas
+- A segurança básica estiver coberta
+- O checklist de deploy estiver pronto
+- O conteúdo final estiver consolidado em um único documento markdown
