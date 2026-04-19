@@ -1,0 +1,203 @@
+PROMPT 18 — TELAS PRINCIPAIS DO FRONTEND (DASHBOARD, CLIENTES, PRODUTOS, ESTOQUE, VENDAS E FINANCEIRO)
+
+Você é um Engenheiro Frontend Sênior especializado em React, Vite, Material UI, React Router e Axios para sistemas ERP administrativos profissionais.
+
+CONTEXTO:
+Estou construindo um ERP comercial completo com frontend em React + Vite e backend em Node.js + Express + PostgreSQL.
+A base do frontend já foi planejada anteriormente com:
+- estrutura de pastas
+- layout principal
+- sidebar
+- header
+- rotas públicas e privadas
+- AuthContext
+- Axios configurado
+- tema com Material UI
+
+Agora preciso construir as telas principais do sistema, respeitando a arquitetura já definida e preparando o frontend para integração real com a API.
+
+Essas telas representam o núcleo operacional do ERP e serão as mais usadas no sistema.
+
+O QUE TENHO ATÉ AQUI:
+- Documento SRS definido
+- Backend amplamente estruturado por prompts anteriores
+- Frontend base já planejado
+- Estrutura administrativa inicial já prevista
+- Necessidade de telas com padrão profissional, reutilização e organização
+
+OBJETIVO:
+Construir o conjunto principal de páginas do frontend, com layout consistente, componentes reutilizáveis, estados de carregamento, filtros, tabelas, formulários e integração preparada com os serviços da API.
+
+REGRAS:
+- Use React com JavaScript
+- Não use TypeScript
+- Use Material UI
+- Use Axios
+- Use React Router
+- Não criar páginas desorganizadas
+- Não concentrar muita lógica em um único componente
+- Separar bem páginas, componentes, dialogs, formulários e services
+- A interface deve ter aparência profissional de sistema administrativo
+- As páginas devem ser preparadas para integração real com backend
+- O resultado deve ficar pronto para crescimento real
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Tela de Dashboard
+2. Tela de Clientes
+3. Tela de Produtos
+4. Tela de Estoque
+5. Tela de Vendas
+6. Tela de Financeiro
+7. Componentes reutilizáveis usados nessas telas
+8. Services de consumo da API para essas telas
+9. Estados visuais de loading, empty e erro
+10. Estrutura de filtros e tabelas
+11. Estrutura de formulários e dialogs
+12. Preparação para paginação e busca
+
+TELAS OBRIGATÓRIAS:
+
+DASHBOARD:
+- cards de estatísticas
+- resumo geral
+- blocos de alertas
+- área para gráfico
+- estrutura preparada para consumo dos endpoints:
+  - /dashboard/resumo
+  - /dashboard/financeiro
+  - /dashboard/estoque
+  - /dashboard/alertas
+  - /dashboard/series/vendas
+
+CLIENTES:
+- listagem
+- filtros
+- busca
+- botão de novo cliente
+- modal ou página de criação/edição
+- alteração de status
+- visualização de informações principais
+
+PRODUTOS:
+- listagem
+- filtros
+- busca
+- botão de novo produto
+- formulário de criação/edição
+- status
+- visualização de estoque mínimo e ponto de reposição
+
+ESTOQUE:
+- visualização de saldos
+- filtros por produto e local
+- listagem de movimentações
+- ações para entrada, saída e transferência
+- alerta visual para baixo estoque
+
+VENDAS:
+- listagem de vendas
+- filtro por tipo
+- filtro por status
+- ação para criar nova venda
+- formulário inicial de venda
+- visualização de itens
+- destaque para venda futura
+
+FINANCEIRO:
+- listagem de duplicatas
+- filtros por status e período
+- ação para registrar pagamento
+- visualização de vencidas, abertas e pagas
+- destaque visual para vencimentos próximos
+
+COMPONENTES REUTILIZÁVEIS ESPERADOS:
+- cards de estatística
+- toolbar de filtros
+- tabela base ou estrutura equivalente
+- dialog de formulário
+- form sections
+- inputs padronizados
+- status chips
+- blocos de alerta
+- loading state
+- empty state
+- error state
+
+SERVICES ESPERADOS:
+- dashboardService.js
+- clienteService.js
+- produtoService.js
+- estoqueService.js
+- vendaService.js
+- financeiroService.js
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- telas devem conversar com os endpoints já previstos no backend
+- a arquitetura visual deve permanecer consistente com o layout base
+- o frontend deve ficar pronto para permissões futuras
+- ações destrutivas ou sensíveis devem usar confirmação
+- formulários devem ser organizados e preparados para validação
+- o código deve permitir fácil evolução futura das telas
+- o dashboard deve estar preparado para filtros de período
+- vendas devem diferenciar claramente:
+  - normal
+  - direta
+  - futura
+- financeiro deve destacar status de duplicata com clareza
+- estoque deve evidenciar risco operacional visualmente
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+PÁGINAS:
+- src/pages/dashboard/DashboardPage.jsx
+- src/pages/clientes/ClientesPage.jsx
+- src/pages/produtos/ProdutosPage.jsx
+- src/pages/estoque/EstoquePage.jsx
+- src/pages/vendas/VendasPage.jsx
+- src/pages/financeiro/FinanceiroPage.jsx
+
+COMPONENTES:
+- componentes específicos por módulo, se necessário
+- componentes compartilhados reutilizáveis
+
+SERVICES:
+- arquivos de services correspondentes
+
+VOCÊ DEVE ORGANIZAR ISSO DE FORMA PROFISSIONAL.
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da estratégia de organização das telas
+2. Estrutura de pastas recomendada para essas páginas
+3. Código completo das páginas principais
+4. Código dos componentes reutilizáveis necessários
+5. Código dos services de integração
+6. Estratégia de loading, erro e vazio
+7. Estratégia de filtros e tabelas
+8. Estratégia de formulários/dialogs
+9. Exemplo de fluxo de integração com backend
+10. Consolidação final em documento markdown
+
+PONTOS IMPORTANTES:
+- Não fazer páginas amadoras
+- Não criar telas gigantes sem separação
+- Não misturar service com componente visual
+- Não ignorar estados de loading e erro
+- Não quebrar o padrão do frontend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  frontend_telas_principais.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- As telas principais estiverem estruturadas
+- Os services estiverem organizados
+- Os componentes reutilizáveis estiverem definidos
+- Os estados de loading, vazio e erro estiverem contemplados
+- A integração com os endpoints estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown
