@@ -458,4 +458,127 @@ CREATE INDEX IF NOT EXISTS idx_logs_auditoria_tabela_nome ON logs_auditoria (tab
 CREATE INDEX IF NOT EXISTS idx_logs_auditoria_acao ON logs_auditoria (acao);
 CREATE INDEX IF NOT EXISTS idx_logs_auditoria_criado_em ON logs_auditoria (criado_em);
 
+-- ═══════════════════════════════════════════════════════════════════════
+-- MÓDULO DE FRETES — TABELAS DE CONFIGURAÇÃO E EVOLUÇÃO
+-- ═══════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS tabelas_frete (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome VARCHAR(120) NOT NULL,
+  tipo_calculo VARCHAR(20) NOT NULL,
+  regiao VARCHAR(120),
+  peso_minimo NUMERIC(12, 3) NOT NULL DEFAULT 0,
+  peso_maximo NUMERIC(12, 3) NOT NULL DEFAULT 0,
+  distancia_minima NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  distancia_maxima NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  valor_base NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  valor_por_kg NUMERIC(14, 4) NOT NULL DEFAULT 0,
+  valor_por_km NUMERIC(14, 4) NOT NULL DEFAULT 0,
+  valor_fixo NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVA',
+  observacao TEXT,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT tabelas_frete_tipo_calculo_check CHECK (tipo_calculo IN ('POR_REGIAO', 'POR_PESO', 'POR_DISTANCIA', 'HIBRIDO')),
+  CONSTRAINT tabelas_frete_status_check CHECK (status IN ('ATIVA', 'INATIVA')),
+  CONSTRAINT tabelas_frete_peso_minimo_check CHECK (peso_minimo >= 0),
+  CONSTRAINT tabelas_frete_peso_maximo_check CHECK (peso_maximo >= 0),
+  CONSTRAINT tabelas_frete_distancia_minima_check CHECK (distancia_minima >= 0),
+  CONSTRAINT tabelas_frete_distancia_maxima_check CHECK (distancia_maxima >= 0),
+  CONSTRAINT tabelas_frete_valor_base_check CHECK (valor_base >= 0),
+  CONSTRAINT tabelas_frete_valor_por_kg_check CHECK (valor_por_kg >= 0),
+  CONSTRAINT tabelas_frete_valor_por_km_check CHECK (valor_por_km >= 0),
+  CONSTRAINT tabelas_frete_valor_fixo_check CHECK (valor_fixo >= 0)
+);
+
+-- Evolução da tabela fretes: adicionar status e tabela_frete_id
+ALTER TABLE fretes ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'CALCULADO';
+ALTER TABLE fretes ADD COLUMN IF NOT EXISTS tabela_frete_id UUID REFERENCES tabelas_frete(id);
+ALTER TABLE fretes DROP CONSTRAINT IF EXISTS fretes_status_check;
+ALTER TABLE fretes ADD CONSTRAINT fretes_status_check CHECK (status IN ('CALCULADO', 'VINCULADO', 'EM_TRANSITO', 'CONCLUIDO', 'CANCELADO'));
+ALTER TABLE fretes DROP CONSTRAINT IF EXISTS fretes_tipo_calculo_check;
+ALTER TABLE fretes ADD CONSTRAINT fretes_tipo_calculo_check CHECK (tipo_calculo IN ('POR_REGIAO', 'POR_PESO', 'POR_DISTANCIA', 'HIBRIDO', 'MANUAL'));
+
+CREATE INDEX IF NOT EXISTS idx_tabelas_frete_tipo_calculo ON tabelas_frete (tipo_calculo);
+CREATE INDEX IF NOT EXISTS idx_tabelas_frete_status ON tabelas_frete (status);
+CREATE INDEX IF NOT EXISTS idx_tabelas_frete_regiao ON tabelas_frete (regiao);
+CREATE INDEX IF NOT EXISTS idx_fretes_status ON fretes (status);
+CREATE INDEX IF NOT EXISTS idx_fretes_tabela_frete_id ON fretes (tabela_frete_id);
+CREATE INDEX IF NOT EXISTS idx_fretes_regiao_destino ON fretes (regiao_destino);
+CREATE INDEX IF NOT EXISTS idx_fretes_criado_em ON fretes (criado_em);
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- MÓDULO DE AUDITORIA — EVOLUÇÃO DA TABELA logs_auditoria
+-- ═══════════════════════════════════════════════════════════════════════
+
+-- Adicionar campo descricao para contexto legível
+ALTER TABLE logs_auditoria ADD COLUMN IF NOT EXISTS descricao TEXT;
+
+-- Expandir o CHECK de acao para suportar todas as ações do módulo de auditoria
+ALTER TABLE logs_auditoria DROP CONSTRAINT IF EXISTS logs_auditoria_acao_check;
+ALTER TABLE logs_auditoria ADD CONSTRAINT logs_auditoria_acao_check CHECK (
+  acao IN (
+    'INSERT', 'UPDATE', 'DELETE',
+    'INACTIVATE', 'STATUS_CHANGE',
+    'LOGIN', 'LOGOUT',
+    'PASSWORD_RESET_REQUEST', 'PASSWORD_RESET_CONFIRM',
+    'PAYMENT_REGISTER', 'STOCK_MOVEMENT',
+    'SALE_CONFIRM', 'DELIVERY_STATUS_CHANGE',
+    'FREIGHT_REAL_COST_UPDATE',
+    'FREIGHT_LINK_DELIVERY', 'FREIGHT_LINK_VEHICLE',
+    'MAINTENANCE_STATUS_CHANGE', 'VEHICLE_STATUS_CHANGE'
+  )
+);
+
+-- Ampliar tamanho do campo acao (caso ainda seja VARCHAR(20))
+ALTER TABLE logs_auditoria ALTER COLUMN acao TYPE VARCHAR(40);
+
+-- Índice composto para consultas por tabela + registro
+CREATE INDEX IF NOT EXISTS idx_logs_auditoria_tabela_registro ON logs_auditoria (tabela_nome, registro_id);
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- MÓDULO DE NOTIFICAÇÕES — TABELA notificacoes
+-- ═══════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS notificacoes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id),
+  tipo VARCHAR(40) NOT NULL,
+  titulo VARCHAR(200) NOT NULL,
+  mensagem TEXT NOT NULL,
+  prioridade VARCHAR(10) NOT NULL DEFAULT 'MEDIA',
+  status VARCHAR(15) NOT NULL DEFAULT 'NAO_LIDA',
+  entidade VARCHAR(100),
+  entidade_id UUID,
+  metadata JSONB,
+  lida_em TIMESTAMPTZ,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT notificacoes_tipo_check CHECK (tipo IN (
+    'ESTOQUE_BAIXO',
+    'VENDA_FUTURA_PROXIMA',
+    'DUPLICATA_VENCIDA',
+    'DUPLICATA_VENCENDO',
+    'MANUTENCAO_PENDENTE',
+    'ENTREGA_NAO_CONCLUIDA',
+    'ENTREGA_CONCLUIDA',
+    'STATUS_ENTREGA_ALTERADO',
+    'FRETE_DIVERGENTE',
+    'ALERTA_GERAL'
+  )),
+  CONSTRAINT notificacoes_prioridade_check CHECK (prioridade IN (
+    'BAIXA', 'MEDIA', 'ALTA', 'CRITICA'
+  )),
+  CONSTRAINT notificacoes_status_check CHECK (status IN (
+    'NAO_LIDA', 'LIDA', 'ARQUIVADA'
+  ))
+);
+
+CREATE INDEX IF NOT EXISTS idx_notificacoes_usuario_id ON notificacoes (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_usuario_status ON notificacoes (usuario_id, status);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_tipo ON notificacoes (tipo);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_prioridade ON notificacoes (prioridade);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_criado_em ON notificacoes (criado_em);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_entidade ON notificacoes (entidade, entidade_id);
+
 COMMIT;

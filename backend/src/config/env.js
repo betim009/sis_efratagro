@@ -44,5 +44,6 @@ module.exports = {
   ),
   passwordResetTokenTtlMinutes: Number(
     process.env.PASSWORD_RESET_TOKEN_TTL_MINUTES || 30
-  )
+  ),
+  corsOrigin: process.env.CORS_ORIGIN || "http://localhost:5173"
 };

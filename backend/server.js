@@ -2,6 +2,7 @@ require("./src/config/env");
 
 const app = require("./app");
 const env = require("./src/config/env");
+const logger = require("./src/config/logger");
 const { testConnection, closePool } = require("./src/config/database");
 
 let server;
@@ -10,12 +11,12 @@ const startServer = async () => {
   await testConnection();
 
   server = app.listen(env.port, () => {
-    console.log(`[server] ${env.appName} rodando na porta ${env.port}`);
+    logger.info(`${env.appName} rodando na porta ${env.port} [${env.nodeEnv}]`);
   });
 };
 
 startServer().catch((error) => {
-  console.error("[server] Falha ao conectar no PostgreSQL:", error.message);
+  logger.error("Falha ao conectar no PostgreSQL:", error);
   process.exit(1);
 });
 
@@ -26,14 +27,14 @@ const shutdown = async (signal) => {
   }
 
   try {
-    console.log(`[server] Encerrando aplicacao por ${signal}`);
+    logger.info(`Encerrando aplicacao por ${signal}`);
 
     server.close(async () => {
       await closePool();
       process.exit(0);
     });
   } catch (error) {
-    console.error("[server] Erro ao encerrar:", error);
+    logger.error("Erro ao encerrar:", error);
     await closePool();
     process.exit(1);
   }
@@ -43,7 +44,7 @@ process.on("SIGINT", () => shutdown("SIGINT"));
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 
 process.on("unhandledRejection", async (reason) => {
-  console.error("[server] unhandledRejection:", reason);
+  logger.error("unhandledRejection:", reason);
   if (server) {
     server.close(async () => {
       await closePool();
@@ -57,7 +58,7 @@ process.on("unhandledRejection", async (reason) => {
 });
 
 process.on("uncaughtException", async (error) => {
-  console.error("[server] uncaughtException:", error);
+  logger.error("uncaughtException:", error);
   await closePool();
   process.exit(1);
 });
