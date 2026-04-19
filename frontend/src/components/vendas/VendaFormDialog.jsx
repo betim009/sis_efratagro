@@ -120,7 +120,7 @@ export default function VendaFormDialog({ open, onClose, onSubmit, loading }) {
         <FormSection title="Itens da venda">
           {itens.map((item, index) => (
             <Box key={index}>
-              <Grid container spacing={1} alignItems="center">
+              <Grid container spacing={1} sx={{ alignItems: "center" }}>
                 <Grid size={{ xs: 12, sm: 4 }}>
                   <TextField
                     label="Produto ID"
