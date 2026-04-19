@@ -1,0 +1,249 @@
+PROMPT 13 — MÓDULO DE RELATÓRIOS GERENCIAIS COM EXPORTAÇÃO E FILTROS
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com foco em relatórios gerenciais, exportação de dados e consolidações por período.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui prompts anteriores cobrindo:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- fornecedores
+- clientes
+- produtos
+- estoque
+- vendas
+- financeiro
+- frota
+- entregas
+- dashboard
+
+Agora preciso construir o módulo de Relatórios, respeitando o SRS do projeto.
+
+Segundo o SRS, o sistema deve permitir:
+- geração de relatórios nos períodos:
+  - diário
+  - semanal
+  - anual
+- relatórios de:
+  - vendas por período, vendedor e cliente
+  - estoque atual e movimentações
+  - duplicatas emitidas e recebidas
+  - entregas realizadas e pendentes
+  - manutenções de frota
+  - vendas futuras
+- exportação em PDF e Excel
+- agendamento de relatórios por e-mail como funcionalidade opcional futura
+
+Esse módulo deve ficar preparado para ser consumido pelo frontend e também para futuras automações.
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Módulos operacionais já definidos
+- Dashboard já estruturado
+- Estrutura pronta para integração entre módulos
+
+OBJETIVO:
+Construir o módulo completo de Relatórios gerenciais, com consultas filtráveis, respostas consistentes, exportação e base preparada para crescimento futuro.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de negócio diretamente no controller
+- Não fazer controller gordo
+- Usar queries coerentes com PostgreSQL
+- O módulo deve respeitar autenticação e autorização
+- Os relatórios devem aceitar filtros reais
+- As respostas precisam ser consistentes tanto para visualização quanto exportação
+- Sempre que fizer decisão importante de agregação ou exportação, explique de forma curta e objetiva
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Relatório de vendas
+2. Relatório de estoque atual
+3. Relatório de movimentações de estoque
+4. Relatório de duplicatas
+5. Relatório de pagamentos recebidos
+6. Relatório de entregas
+7. Relatório de manutenções de frota
+8. Relatório de vendas futuras
+9. Estrutura de exportação em PDF
+10. Estrutura de exportação em Excel
+11. Estrutura futura para agendamento por e-mail
+
+RELATÓRIOS ESPERADOS:
+RELATÓRIO DE VENDAS:
+- por período
+- por vendedor
+- por cliente
+- por tipo de venda
+- por status
+
+RELATÓRIO DE ESTOQUE:
+- saldo atual por produto
+- saldo por local
+- produtos abaixo do mínimo
+- produtos com ponto de reposição
+
+RELATÓRIO DE MOVIMENTAÇÕES:
+- entradas
+- saídas
+- transferências
+- por produto
+- por local
+- por período
+- por responsável
+
+RELATÓRIO FINANCEIRO:
+- duplicatas emitidas
+- duplicatas em aberto
+- duplicatas pagas
+- duplicatas vencidas
+- pagamentos por período
+- pagamentos por forma
+
+RELATÓRIO DE ENTREGAS:
+- entregas realizadas
+- entregas pendentes
+- entregas não realizadas
+- por veículo
+- por vendedor
+- por período
+
+RELATÓRIO DE FROTA:
+- manutenções por veículo
+- custos por período
+- preventivas e corretivas
+- veículos em manutenção
+
+RELATÓRIO DE VENDAS FUTURAS:
+- pedidos futuros pendentes
+- pedidos futuros confirmados
+- pedidos futuros cancelados
+- por cliente
+- por período de entrega
+
+ENTIDADES ENVOLVIDAS:
+- vendas
+- itens_venda
+- clientes
+- produtos
+- estoques
+- movimentacoes_estoque
+- duplicatas
+- pagamentos
+- entregas
+- veiculos
+- manutencoes
+- usuarios
+
+VALIDAÇÕES IMPORTANTES:
+- filtros de data devem ser válidos
+- filtros opcionais devem ser tratados corretamente
+- não quebrar relatório quando não houver dados
+- exportações devem funcionar com estrutura previsível
+- não permitir acesso sem autenticação
+- tratar parâmetros inválidos com erro padronizado
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- relatórios devem refletir dados reais dos módulos já implementados
+- o mesmo núcleo de consulta deve servir para visualização e exportação, evitando duplicação desnecessária
+- relatórios devem ser preparados para uso em tela e download
+- as exportações devem manter nomes e colunas compreensíveis
+- a estrutura deve permitir adição futura de novos relatórios sem bagunçar o módulo
+- deixar base preparada para agendamento futuro por e-mail
+
+ROTAS ESPERADAS NO MÍNIMO:
+- GET /relatorios/vendas
+- GET /relatorios/estoque
+- GET /relatorios/movimentacoes-estoque
+- GET /relatorios/duplicatas
+- GET /relatorios/pagamentos
+- GET /relatorios/entregas
+- GET /relatorios/frota
+- GET /relatorios/vendas-futuras
+
+ROTAS DE EXPORTAÇÃO ESPERADAS:
+- GET /relatorios/vendas/exportar/pdf
+- GET /relatorios/vendas/exportar/excel
+- GET /relatorios/estoque/exportar/pdf
+- GET /relatorios/estoque/exportar/excel
+- GET /relatorios/duplicatas/exportar/pdf
+- GET /relatorios/duplicatas/exportar/excel
+- GET /relatorios/entregas/exportar/pdf
+- GET /relatorios/entregas/exportar/excel
+
+PARÂMETROS DE FILTRO ESPERADOS:
+- dataInicio
+- dataFim
+- clienteId
+- vendedorId
+- produtoId
+- localId
+- veiculoId
+- status
+- tipoVenda
+- formaPagamento
+- agrupamento
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/relatorioController.js
+- src/services/relatorioService.js
+- src/models/relatorioModel.js ou estratégia equivalente
+- src/routes/relatorioRoutes.js
+- utils de exportação PDF e Excel
+- helpers necessários para filtros e formatação
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- relatorios.read
+- relatorios.sales.read
+- relatorios.stock.read
+- relatorios.finance.read
+- relatorios.delivery.read
+- relatorios.fleet.read
+- relatorios.export
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estratégia de organização do módulo de relatórios
+3. Estrutura dos arquivos
+4. Código completo dos arquivos
+5. Rotas protegidas com autenticação e autorização
+6. Validações de filtros
+7. Queries/agregações principais
+8. Estratégia de reaproveitamento entre visualização e exportação
+9. Exemplo de resposta para cada relatório
+10. Estrutura de exportação PDF
+11. Estrutura de exportação Excel
+12. Base preparada para agendamento futuro por e-mail
+13. Instrução curta de integração com o app.js e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não criar relatórios mockados
+- Não duplicar lógica sem necessidade
+- Não ignorar performance em consultas agregadas
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_relatorios.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de relatórios estiver completo
+- Os relatórios principais estiverem estruturados
+- As exportações em PDF e Excel estiverem preparadas
+- Os filtros estiverem contemplados
+- A base para agendamento futuro estiver pronta
+- O conteúdo final estiver consolidado em um único documento markdown
