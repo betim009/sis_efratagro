@@ -1,0 +1,230 @@
+PROMPT 17 — ESTRUTURA BASE DO FRONTEND (REACT + VITE + MATERIAL UI + REACT ROUTER + AXIOS)
+
+Você é um Arquiteto Frontend Sênior especializado em React, Vite, Material UI, React Router e integração com APIs REST para sistemas ERP profissionais.
+
+CONTEXTO:
+Estou construindo um ERP comercial completo com frontend em React + Vite e backend em Node.js + Express + PostgreSQL.
+O backend já foi planejado em prompts anteriores e cobre:
+- autenticação e autorização
+- fornecedores
+- clientes
+- produtos
+- estoque
+- vendas
+- financeiro
+- frota
+- entregas
+- dashboard
+- relatórios
+- frete
+- auditoria
+- notificações
+
+Agora preciso construir a base do frontend, respeitando a stack definida no SRS.
+
+Stack obrigatória do frontend:
+- React com Vite
+- React Router
+- Axios
+- Material UI
+- React Icons
+
+Esse frontend deve ficar preparado para consumo real da API e para crescimento profissional do sistema.
+
+O QUE TENHO ATÉ AQUI:
+- Documento SRS definido
+- Backend amplamente estruturado por prompts anteriores
+- Rotas e módulos principais do ERP já planejados
+- Necessidade de uma base visual e arquitetural profissional
+- O projeto deve crescer com organização e sem amadorismo
+
+OBJETIVO:
+Criar a estrutura base completa do frontend, incluindo organização de pastas, layout principal, roteamento, autenticação base, tema visual, organização de serviços e preparação para integração com todos os módulos do ERP.
+
+REGRAS:
+- Use React com JavaScript
+- Não use TypeScript
+- Use Vite
+- Use Material UI
+- Use React Router
+- Use Axios
+- Use React Icons quando fizer sentido visual
+- Não criar frontend desorganizado
+- Não misturar responsabilidade entre páginas, componentes e serviços
+- O projeto deve ter estrutura profissional e escalável
+- O layout deve ser pensado para sistema ERP administrativo
+- O resultado deve ficar pronto para crescimento real
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Estrutura inicial de pastas do frontend
+2. Configuração base do projeto React + Vite
+3. Configuração do React Router
+4. Estrutura de layout administrativo
+5. Sidebar principal
+6. Header / topbar principal
+7. Tema base com Material UI
+8. Organização de páginas
+9. Organização de componentes reutilizáveis
+10. Organização de services com Axios
+11. Contexto de autenticação
+12. Estrutura de rotas públicas e privadas
+13. Base para controle de permissões no frontend
+14. Integração inicial com token JWT
+15. Preparação para dashboard, cadastros e módulos do ERP
+
+ESTRUTURA DE PASTAS ESPERADA NO MÍNIMO:
+/frontend
+  /src
+    /pages
+    /components
+    /routes
+    /services
+    /hooks
+    /contexts
+    /styles
+    /utils
+  App.jsx
+  main.jsx
+
+VOCÊ DEVE ORGANIZAR MELHOR ESSA ESTRUTURA, SE FIZER SENTIDO, SEM FUGIR DO PADRÃO DEFINIDO.
+
+PÁGINAS BASE ESPERADAS:
+- Login
+- Dashboard
+- Fornecedores
+- Clientes
+- Produtos
+- Estoque
+- Vendas
+- Financeiro
+- Frota
+- Entregas
+- Relatórios
+- Fretes
+- Auditoria
+- Notificações
+- Página de acesso negado
+- Página de não encontrado
+
+COMPONENTES BASE ESPERADOS:
+- Layout principal
+- Sidebar
+- Header
+- ProtectedRoute
+- Loading
+- EmptyState
+- ConfirmDialog
+- DataTable base ou estrutura equivalente reutilizável
+- Card de estatística
+- Componente de badge/status
+
+CONTEXTOS / HOOKS ESPERADOS:
+- AuthContext
+- hook para autenticação
+- hook para permissões, se fizer sentido
+- hook para requests ou tratamento padrão, se fizer sentido
+
+SERVICES ESPERADOS:
+- api.js com Axios configurado
+- authService.js
+- services por módulo ou estratégia equivalente bem organizada
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- frontend deve suportar autenticação com token JWT
+- rotas privadas devem exigir login
+- páginas devem ser preparadas para controle de permissões
+- layout deve ser consistente em todos os módulos
+- sidebar deve refletir os módulos do ERP
+- a estrutura deve facilitar manutenção e crescimento
+- a organização deve ficar pronta para integração real com backend
+- o frontend deve ser preparado para desktop e tablet, conforme SRS
+- tema deve manter aparência profissional de sistema administrativo
+
+ROTAS ESPERADAS NO MÍNIMO:
+PÚBLICAS:
+- /login
+
+PRIVADAS:
+- /
+- /dashboard
+- /fornecedores
+- /clientes
+- /produtos
+- /estoque
+- /vendas
+- /financeiro
+- /frota
+- /entregas
+- /relatorios
+- /fretes
+- /auditoria
+- /notificacoes
+
+AUXILIARES:
+- /acesso-negado
+- *
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/main.jsx
+- src/App.jsx
+- src/routes/AppRoutes.jsx
+- src/routes/ProtectedRoute.jsx
+- src/contexts/AuthContext.jsx
+- src/services/api.js
+- src/components/layout/MainLayout.jsx
+- src/components/layout/Sidebar.jsx
+- src/components/layout/Header.jsx
+- src/styles/theme.js
+- páginas iniciais de placeholder organizadas
+
+PERMISSÕES NO FRONTEND:
+A estrutura deve ficar preparada para permissões como:
+- dashboard.read
+- clientes.read
+- produtos.read
+- vendas.create
+- financeiro.read
+- relatorios.export
+- auditoria.read
+
+Não precisa implementar todo o sistema de permissões final agora, mas a base deve ficar pronta para isso.
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da arquitetura do frontend
+2. Estrutura de pastas recomendada
+3. Código completo dos arquivos base
+4. Layout administrativo inicial
+5. Configuração do tema MUI
+6. Configuração do Axios
+7. Configuração do AuthContext
+8. Configuração das rotas públicas e privadas
+9. Estrutura pronta para evolução dos módulos
+10. Exemplo de navegação da sidebar
+11. Instrução curta de como iniciar o projeto
+12. Consolidação final em documento markdown
+
+PONTOS IMPORTANTES:
+- Não fazer estrutura amadora
+- Não criar tudo dentro de App.jsx
+- Não deixar rotas bagunçadas
+- Não acoplar telas diretamente ao backend sem organização
+- Não quebrar a consistência visual inicial
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  frontend_base_erp.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- A estrutura base do frontend estiver completa
+- O layout principal estiver preparado
+- As rotas públicas e privadas estiverem organizadas
+- O contexto de autenticação estiver estruturado
+- O Axios estiver configurado
+- O conteúdo final estiver consolidado em um único documento markdown
