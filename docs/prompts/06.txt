@@ -1,0 +1,192 @@
+PROMPT 06 — CRUD DE PRODUTOS
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- padrão de rotas
+- módulo de fornecedores já construído
+- módulo de clientes já construído
+
+Agora preciso construir o módulo de Produtos, respeitando o SRS do projeto.
+
+Segundo o SRS, o módulo de Produto deve permitir:
+- cadastrar produto
+- editar produto
+- consultar produto
+- inativar produto
+- armazenar os campos principais do produto
+- vincular fornecedor padrão
+- controlar estoque mínimo
+- controlar ponto de reposição
+- manter código de barras ou referência interna
+- permitir uso futuro no estoque, vendas e relatórios
+
+Campos esperados no SRS:
+- código
+- nome
+- descrição
+- unidade de medida
+- categoria
+- preço de custo
+- preço de venda
+- peso
+- código de barras / referência interna
+- fornecedor padrão
+- estoque mínimo
+- ponto de reposição
+- status
+
+Status esperados:
+- Ativo
+- Inativo
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Controle de permissões
+- Estrutura de rotas pronta
+- Módulos anteriores seguindo padrão profissional
+
+OBJETIVO:
+Construir o CRUD completo de Produtos no backend, de forma profissional, segura, validada e pronta para integração com estoque, vendas, alertas e relatórios.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de negócio diretamente no controller
+- Não fazer controller gordo
+- Usar validações reais
+- Não excluir produto fisicamente do banco
+- Inativação deve ser lógica
+- O módulo deve estar pronto para uso real
+- O produto precisa ficar preparado para integração com estoque e vendas
+- Toda rota deve respeitar autenticação e autorização
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Criar produto
+2. Listar produtos
+3. Buscar produto por id
+4. Atualizar produto
+5. Inativar produto
+6. Listar produtos por status
+7. Listar produtos por categoria
+8. Preparar consulta para saldo de estoque consolidado por produto
+9. Preparar consulta para alertas de estoque mínimo e ponto de reposição
+
+CAMPOS ESPERADOS:
+- id
+- codigo
+- nome
+- descricao
+- unidade_medida
+- categoria
+- preco_custo
+- preco_venda
+- peso
+- codigo_barras
+- referencia_interna
+- fornecedor_padrao_id
+- estoque_minimo
+- ponto_reposicao
+- status
+- created_at
+- updated_at
+
+VALIDAÇÕES IMPORTANTES:
+- código obrigatório
+- nome obrigatório
+- validar duplicidade de código
+- validar duplicidade de código de barras, se existir
+- validar fornecedor_padrao_id quando enviado
+- validar preco_custo como número válido
+- validar preco_venda como número válido
+- validar peso como número válido
+- validar estoque_minimo como número válido
+- validar ponto_reposicao como número válido
+- validar status aceitando apenas:
+  - ATIVO
+  - INATIVO
+- tratar produto inexistente corretamente
+- impedir atualização inconsistente
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- produto inativo não deve aparecer normalmente em fluxos ativos, salvo consulta administrativa
+- fornecedor padrão deve referenciar um fornecedor existente
+- preço de venda não deve quebrar a estrutura mesmo que a regra comercial futura permita casos específicos
+- produto deve ficar pronto para uso em estoque, movimentações, vendas e relatórios
+- alertas de estoque mínimo e ponto de reposição devem considerar integração futura com a tabela de estoque
+
+ROTAS ESPERADAS NO MÍNIMO:
+- POST /produtos
+- GET /produtos
+- GET /produtos/:id
+- PUT /produtos/:id
+- PATCH /produtos/:id/inativar
+- GET /produtos/status/:status
+- GET /produtos/categoria/:categoria
+- GET /produtos/:id/saldo-estoque
+- GET /produtos/alertas/estoque-minimo
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/produtoController.js
+- src/services/produtoService.js
+- src/models/produtoModel.js
+- src/routes/produtoRoutes.js
+- validações e helpers necessários
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- produtos.create
+- produtos.read
+- produtos.update
+- produtos.inactivate
+- produtos.stock.read
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estrutura dos arquivos
+3. Código completo dos arquivos
+4. Rotas protegidas com autenticação e autorização
+5. Validações de entrada
+6. Tratamento de erros
+7. Exemplo de payload de criação
+8. Exemplo de payload de atualização
+9. Exemplo de resposta da API
+10. Estrutura para saldo de estoque consolidado por produto
+11. Estrutura para alertas de estoque mínimo e ponto de reposição
+12. Instrução curta de integração com o app.js e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não apagar produto com DELETE físico
+- Não deixar código duplicado
+- Não ignorar validação de fornecedor padrão
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  crud_produtos.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O CRUD de produtos estiver completo
+- As rotas estiverem protegidas
+- As validações estiverem implementadas
+- A inativação lógica estiver funcionando
+- A estrutura para saldo de estoque estiver preparada
+- A estrutura para alertas de estoque mínimo estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown
