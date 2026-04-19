@@ -1,0 +1,274 @@
+PROMPT 22 — README PROFISSIONAL COMPLETO DO ERP (GUIA DE EXECUÇÃO E USO)
+
+Você é um Engenheiro Full Stack Sênior especializado em documentação técnica profissional para projetos reais, com experiência em Node.js, React, PostgreSQL e Docker.
+
+CONTEXTO:
+Estou construindo um ERP comercial completo com:
+
+Frontend:
+- React + Vite
+- Material UI
+- React Router
+- Axios
+
+Backend:
+- Node.js + Express
+- Arquitetura MSC (Models, Services, Controllers)
+
+Banco de Dados:
+- PostgreSQL
+
+Infraestrutura:
+- Docker + Docker Compose
+
+O sistema já possui todos os módulos estruturados:
+- autenticação e autorização
+- fornecedores
+- clientes
+- produtos
+- estoque
+- vendas
+- financeiro
+- frota
+- entregas
+- dashboard
+- relatórios
+- frete
+- auditoria
+- notificações
+
+Agora preciso de um README.md completo, profissional e utilizável na prática, para qualquer desenvolvedor conseguir entender e rodar o projeto.
+
+OBJETIVO:
+Gerar um arquivo README.md completo, claro, profissional e pronto para uso real, contendo instruções detalhadas de execução, estrutura do projeto e funcionamento geral do sistema.
+
+REGRAS:
+- Escreva em Markdown (.md)
+- Não seja superficial
+- Não escreva explicações vagas
+- O conteúdo deve ser claro para alguém que nunca viu o projeto
+- O README deve ser utilizável na prática
+- Use linguagem direta e organizada
+- Estruture bem com títulos, subtítulos e blocos de código
+- Evite textos longos sem estrutura
+- Foque em clareza e usabilidade
+- O README deve parecer de projeto profissional real
+
+ESCOPO DO README:
+
+1. TÍTULO DO PROJETO
+- Nome do ERP
+- Breve descrição
+
+---
+
+2. VISÃO GERAL
+- O que o sistema faz
+- Público alvo
+- Principais funcionalidades
+
+---
+
+3. STACK UTILIZADA
+Separar por:
+- Frontend
+- Backend
+- Banco
+- Infra
+
+---
+
+4. ESTRUTURA DO PROJETO
+
+Mostrar estrutura geral:
+
+/frontend
+/backend
+docker-compose.yml
+.env
+
+Explicar brevemente cada parte
+
+---
+
+5. PRÉ-REQUISITOS
+
+Exemplo:
+- Node.js
+- Docker
+- Docker Compose
+- Git
+
+---
+
+6. COMO RODAR O PROJETO (MODO PRINCIPAL — DOCKER)
+
+Passo a passo claro:
+
+- copiar .env
+- subir containers
+- acessar sistema
+
+Exemplo de comandos:
+docker compose up --build
+
+Explicar portas:
+- frontend
+- backend
+- banco
+
+---
+
+7. COMO RODAR SEM DOCKER (MODO ALTERNATIVO)
+
+BACKEND:
+- instalar dependências
+- configurar .env
+- rodar servidor
+
+FRONTEND:
+- instalar dependências
+- rodar vite
+
+BANCO:
+- instrução básica de criação
+
+---
+
+8. VARIÁVEIS DE AMBIENTE
+
+Separar:
+
+BACKEND:
+- PORT
+- DATABASE_URL ou equivalentes
+- JWT_SECRET
+
+FRONTEND:
+- VITE_API_URL
+
+Explicar brevemente cada uma
+
+---
+
+9. SCRIPTS IMPORTANTES
+
+Backend:
+- npm run dev
+- npm start
+
+Frontend:
+- npm run dev
+- npm run build
+
+---
+
+10. PRINCIPAIS MÓDULOS DO SISTEMA
+
+Listar e explicar rapidamente:
+- Clientes
+- Produtos
+- Estoque
+- Vendas
+- Financeiro
+- etc
+
+---
+
+11. FLUXO BÁSICO DO SISTEMA
+
+Exemplo:
+- criar cliente
+- cadastrar produto
+- registrar venda
+- gerar duplicata
+- acompanhar entrega
+
+---
+
+12. AUTENTICAÇÃO
+
+- como funciona login
+- uso de JWT
+- onde fica o token no frontend
+
+---
+
+13. PERMISSÕES
+
+- sistema baseado em perfil
+- exemplo de permissões
+
+---
+
+14. OBSERVAÇÕES IMPORTANTES
+
+- uso de migrations.sql
+- uso de seeders.sql
+- cuidado com dados de produção
+- padrão de desenvolvimento
+
+---
+
+15. TROUBLESHOOTING (ERROS COMUNS)
+
+Exemplos:
+- porta em uso
+- erro de conexão com banco
+- container não sobe
+- problema de variável de ambiente
+
+---
+
+16. COMANDOS ÚTEIS
+
+Exemplo:
+docker ps
+docker logs
+docker compose down
+etc
+
+---
+
+17. ROADMAP (OPCIONAL)
+
+Melhorias futuras
+
+---
+
+18. LICENÇA (OPCIONAL)
+
+---
+
+O QUE DEVE SER ENTREGUE:
+- Um README.md COMPLETO
+- Estruturado corretamente
+- Com exemplos reais de comandos
+- Com explicações claras
+- Pronto para uso imediato
+
+---
+
+PONTOS IMPORTANTES:
+- Não fazer README genérico
+- Não deixar instruções incompletas
+- Não assumir conhecimento prévio do leitor
+- Não quebrar a coerência com o projeto ERP
+- O README deve permitir que qualquer dev rode o projeto sem ajuda
+
+---
+
+FORMATO DA RESPOSTA:
+- Apenas Markdown
+- Sem explicações fora do arquivo
+- Começar diretamente com:
+
+# Nome do Projeto
+
+---
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O README estiver completo
+- Todas as instruções de execução estiverem claras
+- O documento estiver pronto para uso real em um repositório
