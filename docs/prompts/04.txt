@@ -1,0 +1,142 @@
+PROMPT 04 — CRUD DE FORNECEDORES
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui base estrutural inicial, modelagem de banco e módulo de autenticação/autorização.
+
+Agora preciso construir o módulo de Fornecedores, respeitando o SRS do projeto.
+
+Segundo o SRS, o módulo de Fornecedor deve permitir:
+- Cadastrar fornecedor
+- Editar fornecedor
+- Inativar fornecedor
+- Consultar fornecedor
+- Armazenar os campos:
+  - razão social
+  - nome fantasia
+  - CNPJ/CPF
+  - endereço
+  - telefone
+  - e-mail
+  - contato responsável
+- Manter status:
+  - Ativo
+  - Inativo
+- Permitir histórico de compras por fornecedor
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Estrutura de rotas
+- Banco de dados modelado
+- Controle de acesso por permissões
+
+OBJETIVO:
+Construir o CRUD completo de Fornecedores no backend, de forma profissional, validada, segura e pronta para integração com o restante do ERP.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não misture regra de negócio em controller
+- Não faça controller gordo
+- Use validações adequadas
+- O módulo deve estar pronto para uso real
+- Não excluir fornecedor fisicamente do banco
+- A exclusão deve ser lógica via status
+- Preparar a estrutura para consulta futura de histórico de compras
+- Toda rota deve respeitar autenticação e autorização
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Criar fornecedor
+2. Listar fornecedores
+3. Buscar fornecedor por id
+4. Atualizar fornecedor
+5. Inativar fornecedor
+6. Estruturar endpoint para consultar histórico de compras do fornecedor
+   - mesmo que inicialmente traga estrutura preparada ou mock baseada na modelagem existente
+
+CAMPOS ESPERADOS:
+- id
+- razao_social
+- nome_fantasia
+- cnpj_cpf
+- endereco
+- telefone
+- email
+- contato_responsavel
+- status
+- created_at
+- updated_at
+
+VALIDAÇÕES IMPORTANTES:
+- razão social obrigatória
+- CNPJ/CPF obrigatório
+- validar duplicidade de CNPJ/CPF
+- e-mail, se enviado, deve ser validado
+- status deve respeitar os valores aceitos
+- não permitir atualização inconsistente
+- tratar fornecedor inexistente corretamente
+
+ROTAS ESPERADAS NO MÍNIMO:
+- POST /fornecedores
+- GET /fornecedores
+- GET /fornecedores/:id
+- PUT /fornecedores/:id
+- PATCH /fornecedores/:id/inativar
+- GET /fornecedores/:id/historico-compras
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/fornecedorController.js
+- src/services/fornecedorService.js
+- src/models/fornecedorModel.js
+- src/routes/fornecedorRoutes.js
+- validações e helpers necessários
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- fornecedores.create
+- fornecedores.read
+- fornecedores.update
+- fornecedores.inactivate
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estrutura dos arquivos
+3. Código completo dos arquivos
+4. Rotas protegidas com autenticação e autorização
+5. Validações de entrada
+6. Tratamento de erros
+7. Exemplo de payload de criação
+8. Exemplo de resposta da API
+9. Preparação para histórico de compras
+10. Instrução curta de integração com app.js e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução simplista
+- Não apagar fornecedor com DELETE físico
+- Não deixar validações frágeis
+- Não ignorar duplicidade de documento
+- Não quebrar o padrão já criado no backend
+- O resultado precisa ficar pronto para crescer dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  crud_fornecedores.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O CRUD de fornecedores estiver completo
+- As rotas estiverem protegidas
+- As validações estiverem implementadas
+- A inativação lógica estiver funcionando
+- A estrutura para histórico de compras estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown
