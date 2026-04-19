@@ -1,0 +1,122 @@
+PROMPT 02 — MODELAGEM DO BANCO DE DADOS POSTGRESQL
+
+Você é um Especialista em Modelagem de Banco de Dados Relacional com foco em PostgreSQL para sistemas ERP.
+
+CONTEXTO:
+Estou construindo um ERP comercial com base em um documento SRS já definido.
+O sistema possui módulos de:
+- Fornecedores
+- Clientes
+- Produtos
+- Estoque por local
+- Movimentações de estoque
+- Vendas
+- Itens de venda
+- Entregas
+- Duplicatas
+- Pagamentos
+- Veículos
+- Manutenções
+- Fretes
+- Usuários
+- Perfis de acesso
+- Logs de auditoria
+
+Também existem fluxos críticos como:
+- Venda completa
+- Venda futura
+- Geração de duplicatas
+- Controle de entrega
+- Controle de frete
+- Controle de permissões por usuário
+
+O QUE TENHO ATÉ AQUI:
+- SRS do sistema já definido
+- Backend em Node.js + Express
+- Banco PostgreSQL
+- Estrutura backend com pasta /database contendo:
+  - migrations.sql
+  - seeders.sql
+
+OBJETIVO:
+Criar a modelagem inicial completa do banco de dados PostgreSQL, de forma profissional, coerente com o SRS, pronta para uso real no sistema.
+
+REGRAS:
+- Use PostgreSQL
+- Não use modelagem superficial
+- Não invente módulos fora do SRS
+- Pode complementar campos técnicos necessários, desde que faça sentido para produção real
+- Toda tabela deve ter chave primária
+- Defina relacionamentos corretamente
+- Defina tipos de dados adequados
+- Inclua foreign keys
+- Inclua constraints importantes
+- Inclua índices onde fizer sentido
+- Considere status, rastreabilidade e crescimento futuro
+- Sempre que necessário, normalize corretamente
+- Evite duplicação desnecessária de dados
+- Ao final, gere tudo em um documento markdown
+
+TABELAS ESPERADAS NO MÍNIMO:
+- fornecedores
+- clientes
+- produtos
+- locais_estoque
+- estoques
+- movimentacoes_estoque
+- vendas
+- itens_venda
+- entregas
+- duplicatas
+- pagamentos
+- veiculos
+- manutencoes
+- fretes
+- usuarios
+- perfis_acesso
+- logs_auditoria
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação da modelagem escolhida
+2. Lista de tabelas com descrição da responsabilidade de cada uma
+3. Relacionamentos entre tabelas
+4. Arquivo migrations.sql completo
+5. Arquivo seeders.sql inicial com dados mínimos para teste
+6. Inserção de pelo menos:
+   - 1 usuário administrador
+   - perfis básicos de acesso
+   - alguns clientes
+   - alguns fornecedores
+   - alguns produtos
+   - alguns locais de estoque
+7. Sugestão de índices importantes para performance
+8. Observações curtas sobre decisões de modelagem importantes
+
+PONTOS IMPORTANTES DO SRS A RESPEITAR:
+- Cliente possui histórico de compras e débitos em aberto
+- Produto possui fornecedor padrão, estoque mínimo e ponto de reposição
+- Estoque é controlado por local
+- Toda movimentação precisa ter data, responsável e motivo
+- Venda pode ser direta, futura ou normal
+- Entrega possui status e histórico operacional
+- Venda a prazo gera duplicata
+- Duplicata possui pagamentos e status
+- Frota deve se vincular a entregas
+- Controle de acesso deve suportar permissões granulares
+- Log de auditoria deve registrar alteração de dados
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma o SQL
+- Mostre o SQL completo
+- Organize a resposta em seções
+- Ao final, monte um arquivo final chamado:
+  modelagem_inicial_postgresql.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- A modelagem estiver completa
+- O SQL de migrations estiver completo
+- O SQL de seeders estiver completo
+- Os relacionamentos estiverem coerentes com o SRS
+- O conteúdo final estiver consolidado em um único documento markdown

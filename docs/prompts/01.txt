@@ -1,0 +1,92 @@
+PROMPT 01 — ESTRUTURA INICIAL DO BACKEND (MSC + SETUP BASE)
+
+Você é um Arquiteto de Software Sênior especializado em Node.js, Express e PostgreSQL.
+
+CONTEXTO:
+Estou construindo um sistema ERP comercial completo com base em um documento SRS já definido.
+O sistema possui múltiplos módulos, incluindo:
+- Cadastros (Cliente, Produto, Fornecedor)
+- Vendas
+- Estoque
+- Financeiro (Duplicatas)
+- Frota
+- Dashboard
+- Relatórios
+- Controle de acesso
+
+O backend deve seguir uma arquitetura organizada, escalável e profissional.
+
+O QUE TENHO ATÉ AQUI:
+- Documento SRS completo definido
+- Stack definida:
+  - Node.js
+  - Express
+  - PostgreSQL
+  - Docker + Docker Compose
+- Arquitetura obrigatória:
+  - MSC (Models, Services, Controllers)
+  - Middlewares
+  - Banco com migrations.sql e seeders.sql
+
+OBJETIVO:
+Criar a estrutura inicial completa do backend, incluindo:
+1. Estrutura de pastas profissional
+2. Arquivos base do projeto
+3. Configuração inicial do servidor
+4. Conexão com PostgreSQL
+5. Organização pronta para escalar
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Não simplifique a estrutura
+- Não misture responsabilidades
+- Siga o padrão MSC corretamente
+- A estrutura deve estar pronta para crescimento real
+- O código deve ser limpo, organizado e próximo do padrão de mercado
+- Sempre que houver decisão técnica importante, explique de forma curta e objetiva
+- Ao final, gere tudo em um documento markdown
+
+ESTRUTURA OBRIGATÓRIA:
+/backend
+  /src
+    /controllers
+    /services
+    /models
+    /middlewares
+    /routes
+    /database
+      migrations.sql
+      seeders.sql
+    /config
+    /utils
+  app.js
+  server.js
+
+O QUE DEVE SER ENTREGUE:
+1. Estrutura completa de pastas explicada
+2. Código completo dos arquivos base:
+   - server.js
+   - app.js
+   - arquivo de conexão com banco
+3. Middleware global de erro
+4. Setup básico de rotas
+5. Conexão com PostgreSQL usando uma abordagem escolhida por você
+6. Arquivo .env.example
+7. Scripts iniciais do package.json
+8. Explicação curta de como rodar o projeto
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final da resposta, monte um arquivo final chamado:
+  backend_setup_inicial.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- Toda a estrutura inicial do backend estiver pronta
+- O projeto estiver preparado para rodar
+- A conexão com banco estiver configurada
+- O conteúdo final estiver consolidado em um documento markdown
