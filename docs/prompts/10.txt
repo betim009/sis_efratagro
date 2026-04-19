@@ -1,0 +1,224 @@
+PROMPT 10 — MÓDULO DE FROTA, MANUTENÇÃO E VINCULAÇÃO COM ENTREGAS
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com controle logístico e operacional de frota.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- módulos de fornecedores, clientes, produtos, estoque, vendas e financeiro
+- padrão profissional de rotas, services, models e controllers
+
+Agora preciso construir o módulo de Frota e Manutenção, respeitando o SRS do projeto.
+
+Segundo o SRS, o módulo deve permitir:
+- cadastrar veículos
+- registrar tipo, placa, modelo, ano e responsável
+- registrar manutenções preventivas e corretivas
+- armazenar data, custo, fornecedor do serviço e descrição
+- criar agenda de manutenção preventiva com alertas por quilometragem ou data
+- manter histórico completo por veículo
+- vincular veículo às entregas realizadas
+
+Esse módulo deve ficar preparado para integração com entregas, dashboard e relatórios.
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Controle de permissões
+- Estrutura pronta para integração entre módulos
+- Entregas já previstas na modelagem e no fluxo de vendas
+
+OBJETIVO:
+Construir o módulo completo de Frota e Manutenção, de forma profissional, auditável, segura e pronta para uso real no ERP.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de negócio diretamente no controller
+- Não fazer controller gordo
+- Usar validações reais
+- Toda manutenção deve ficar vinculada corretamente ao veículo
+- Toda rota deve respeitar autenticação e autorização
+- O módulo deve ficar preparado para integração com entregas, dashboard e relatórios
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. CRUD de veículos
+2. Registro de manutenção preventiva
+3. Registro de manutenção corretiva
+4. Listagem de manutenções por veículo
+5. Consulta de histórico completo do veículo
+6. Consulta de manutenções por período
+7. Consulta de veículos em manutenção
+8. Estrutura para alertas de manutenção preventiva
+9. Estrutura para vinculação de veículo com entregas
+10. Estrutura para relatório de custos de manutenção por período e por veículo
+
+TIPOS DE MANUTENÇÃO ESPERADOS:
+- PREVENTIVA
+- CORRETIVA
+
+STATUS DE VEÍCULO SUGERIDOS:
+- ATIVO
+- EM_MANUTENCAO
+- INATIVO
+
+STATUS DE MANUTENÇÃO SUGERIDOS:
+- AGENDADA
+- EM_ANDAMENTO
+- CONCLUIDA
+- CANCELADA
+
+ENTIDADES ENVOLVIDAS:
+- veiculos
+- manutencoes
+- usuarios
+- fornecedores
+- entregas
+
+CAMPOS IMPORTANTES DE VEÍCULO:
+- id
+- placa
+- modelo
+- ano
+- tipo
+- responsavel_id
+- status
+- quilometragem_atual
+- observacao
+- created_at
+- updated_at
+
+CAMPOS IMPORTANTES DE MANUTENÇÃO:
+- id
+- veiculo_id
+- tipo_manutencao
+- status
+- data_agendada
+- data_realizacao
+- quilometragem_referencia
+- custo
+- fornecedor_id
+- descricao
+- observacao
+- created_at
+- updated_at
+
+VALIDAÇÕES IMPORTANTES:
+- placa obrigatória
+- não permitir placa duplicada
+- modelo obrigatório
+- ano deve ser válido
+- tipo do veículo obrigatório
+- responsavel_id, se enviado, deve existir
+- status do veículo deve aceitar apenas valores válidos
+- veiculo_id deve existir nas manutenções
+- tipo_manutencao deve aceitar apenas:
+  - PREVENTIVA
+  - CORRETIVA
+- status da manutenção deve aceitar apenas valores válidos
+- custo deve ser número válido maior ou igual a zero
+- fornecedor_id, se enviado, deve existir
+- não permitir manutenção para veículo inexistente
+- tratar veículo inexistente e manutenção inexistente corretamente
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- veículo pode existir sem manutenção
+- manutenção sempre pertence a um veículo
+- histórico do veículo deve reunir dados do cadastro e das manutenções
+- veículo em manutenção pode ter status operacional diferente de ativo
+- alertas preventivos devem poder considerar:
+  - data agendada próxima
+  - quilometragem de referência próxima ou atingida
+- estrutura deve permitir vincular um veículo a uma entrega
+- custos de manutenção devem ficar preparados para relatórios gerenciais
+- ao concluir manutenção, o status do veículo pode voltar a ATIVO conforme regra definida e justificada
+- o módulo deve ficar preparado para dashboard com veículos em manutenção
+
+ROTAS ESPERADAS NO MÍNIMO:
+VEÍCULOS:
+- POST /frota/veiculos
+- GET /frota/veiculos
+- GET /frota/veiculos/:id
+- PUT /frota/veiculos/:id
+- PATCH /frota/veiculos/:id/status
+- GET /frota/veiculos/status/:status
+- GET /frota/veiculos/:id/historico
+
+MANUTENÇÕES:
+- POST /frota/manutencoes
+- GET /frota/manutencoes
+- GET /frota/manutencoes/:id
+- PUT /frota/manutencoes/:id
+- PATCH /frota/manutencoes/:id/status
+- GET /frota/veiculos/:id/manutencoes
+- GET /frota/alertas/manutencao-preventiva
+- GET /frota/relatorios/custos-manutencao
+
+ENTREGA / VINCULAÇÃO:
+- PATCH /frota/entregas/:entregaId/vincular-veiculo/:veiculoId
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/frotaController.js
+- src/services/frotaService.js
+- src/models/veiculoModel.js
+- src/models/manutencaoModel.js
+- src/routes/frotaRoutes.js
+- validações e helpers necessários
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- frota.veiculos.create
+- frota.veiculos.read
+- frota.veiculos.update
+- frota.manutencoes.create
+- frota.manutencoes.read
+- frota.manutencoes.update
+- frota.alertas.read
+- entregas.update
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estrutura dos arquivos
+3. Código completo dos arquivos
+4. Rotas protegidas com autenticação e autorização
+5. Validações de entrada
+6. Tratamento de erros
+7. Exemplo de payload para criar veículo
+8. Exemplo de payload para criar manutenção
+9. Exemplo de payload para atualizar status de manutenção
+10. Exemplo de resposta da API
+11. Estratégia usada para alertas preventivos
+12. Estrutura para vínculo com entregas
+13. Estrutura para relatório de custos
+14. Instrução curta de integração com o app.js e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não tratar manutenção como simples anotação solta
+- Não ignorar histórico por veículo
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_frota_manutencao.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de frota estiver completo
+- O CRUD de veículos estiver funcional
+- O registro de manutenções estiver implementado
+- A estrutura de alertas preventivos estiver preparada
+- A vinculação com entregas estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown
