@@ -1,0 +1,126 @@
+PROMPT 03 — AUTENTICAÇÃO, AUTORIZAÇÃO E CONTROLE DE ACESSO
+
+Você é um Engenheiro Backend Sênior especializado em autenticação, autorização e segurança de aplicações Node.js com Express e PostgreSQL.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express e banco PostgreSQL.
+O sistema possui múltiplos módulos e perfis de usuário, como:
+- Administrador
+- Vendedor
+- Estoquista
+- Motorista / Logística
+- Financeiro
+- Gerente
+
+O SRS define que o sistema deve possuir:
+- Autenticação com login e senha
+- Senha com hash bcrypt ou equivalente
+- Perfis de acesso com permissões granulares por módulo e ação
+- Log de auditoria
+- Redefinição de senha
+- Controle de múltiplas sessões com timeout por inatividade
+
+O QUE TENHO ATÉ AQUI:
+- Estrutura inicial do backend
+- Modelagem inicial do banco PostgreSQL
+- Tabelas como:
+  - usuarios
+  - perfis_acesso
+  - logs_auditoria
+- Arquitetura MSC
+- Pasta de middlewares disponível
+- Rotas organizadas no backend
+
+OBJETIVO:
+Construir o módulo inicial completo de autenticação e controle de acesso do sistema, com foco em segurança, organização e escalabilidade.
+
+REGRAS:
+- Use Node.js com Express
+- Use JavaScript
+- Não use TypeScript
+- Use bcrypt para hash de senha
+- Use JWT para autenticação
+- Estruture tudo de forma profissional
+- Não misture regra de negócio em controller
+- Respeite a arquitetura MSC
+- Implemente middlewares separados para autenticação e autorização
+- O sistema deve estar preparado para permissões granulares por módulo e ação
+- Sempre que houver decisão técnica relevante, explique de forma curta e objetiva
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Login
+2. Validação de credenciais
+3. Geração de token JWT
+4. Middleware de autenticação
+5. Middleware de autorização por perfil/permissão
+6. Estrutura base para redefinição de senha
+7. Estrutura base para timeout de sessão
+8. Registro de auditoria das ações principais de autenticação
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da estratégia de autenticação escolhida
+2. Estrutura dos arquivos envolvidos
+3. Código completo dos arquivos necessários
+4. Rotas de autenticação, no mínimo:
+   - login
+   - perfil do usuário autenticado
+   - redefinição de senha inicial ou solicitação de reset
+5. Service de autenticação
+6. Controller de autenticação
+7. Middleware de autenticação JWT
+8. Middleware de autorização por permissões
+9. Exemplo de payload do token
+10. Exemplo de estrutura de permissões
+11. Registro de logs de auditoria para ações de login relevantes
+12. Orientação curta de como integrar isso no restante do sistema
+
+PERMISSÕES ESPERADAS:
+O sistema deve ficar preparado para validar permissões como exemplo:
+- clientes.create
+- clientes.read
+- clientes.update
+- clientes.delete
+- produtos.create
+- vendas.create
+- estoque.read
+- financeiro.read
+- frota.update
+
+VOCÊ DEVE DEFINIR:
+- Como armazenar permissões
+- Como ler permissões do perfil
+- Como proteger rotas com base nisso
+- Como evitar acesso indevido de usuários sem permissão
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/authController.js
+- src/services/authService.js
+- src/middlewares/authMiddleware.js
+- src/middlewares/permissionMiddleware.js
+- src/routes/authRoutes.js
+- src/utils/jwt.js ou equivalente
+- eventuais helpers necessários
+
+PONTOS IMPORTANTES:
+- Não criar solução amadora
+- Não deixar senha em texto puro
+- Não colocar regra crítica direto em rota
+- Não fazer autorização baseada apenas em string solta sem estrutura
+- O resultado deve ficar pronto para crescer com o restante do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  autenticacao_e_autorizacao.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de autenticação estiver estruturado
+- Login com JWT estiver implementado
+- Permissões por perfil estiverem protegendo rotas
+- A base para reset de senha e timeout estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown
