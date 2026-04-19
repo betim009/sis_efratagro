@@ -1,0 +1,237 @@
+PROMPT 14 — MÓDULO DE CONTROLE DE FRETE, TABELAS DE CÁLCULO E CUSTO REAL DE ENTREGA
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com foco em logística, cálculo operacional e controle de frete.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui prompts anteriores cobrindo:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- fornecedores
+- clientes
+- produtos
+- estoque
+- vendas
+- financeiro
+- frota
+- entregas
+- dashboard
+- relatórios
+
+Agora preciso construir o módulo de Frete, respeitando o SRS do projeto.
+
+Segundo o SRS, o sistema deve permitir:
+- cadastro de tabelas de frete por região, peso ou distância
+- cálculo automático do frete no momento da venda
+- vincular frete a veículo ou transportadora terceirizada
+- registrar custo real do frete por entrega
+- gerar relatório de custo de frete por período e destino
+
+Esse módulo deve ficar preparado para integração com:
+- vendas
+- entregas
+- frota
+- dashboard
+- relatórios
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Módulos operacionais anteriores já estruturados
+- Vendas e entregas já previstas
+- Frota já prevista
+- Estrutura pronta para integração entre módulos
+
+OBJETIVO:
+Construir o módulo completo de controle de frete, com tabelas configuráveis, cálculo automático, vínculo operacional e custo real de entrega, de forma profissional, auditável, segura e pronta para uso real no ERP.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de negócio diretamente no controller
+- Não fazer controller gordo
+- Usar validações reais
+- O cálculo de frete deve ser consistente e reutilizável
+- O módulo deve respeitar autenticação e autorização
+- O resultado deve ficar preparado para integração com venda, entrega, frota e relatórios
+- Sempre que fizer decisão importante sobre regra de cálculo, explique de forma curta e objetiva
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. CRUD de tabelas de frete
+2. CRUD de faixas ou regras de frete
+3. Cálculo automático do frete
+4. Consulta de frete por venda
+5. Vinculação de frete com entrega
+6. Vinculação de frete com veículo ou transportadora
+7. Registro de custo real do frete
+8. Comparação entre custo calculado e custo real
+9. Consulta de fretes por período
+10. Consulta de fretes por destino/região
+11. Estrutura para relatórios e dashboard
+
+MODOS DE CÁLCULO ESPERADOS:
+- POR_REGIAO
+- POR_PESO
+- POR_DISTANCIA
+- HIBRIDO
+
+STATUS SUGERIDOS PARA TABELA DE FRETE:
+- ATIVA
+- INATIVA
+
+STATUS SUGERIDOS PARA FRETE OPERACIONAL:
+- CALCULADO
+- VINCULADO
+- EM_TRANSITO
+- CONCLUIDO
+- CANCELADO
+
+ENTIDADES ENVOLVIDAS:
+- fretes
+- vendas
+- entregas
+- veiculos
+- clientes
+- transportadoras, se você decidir modelar e justificar
+- usuarios
+
+CAMPOS IMPORTANTES DA TABELA DE FRETE:
+- id
+- nome
+- tipo_calculo
+- regiao
+- peso_minimo
+- peso_maximo
+- distancia_minima
+- distancia_maxima
+- valor_base
+- valor_por_kg
+- valor_por_km
+- valor_fixo
+- status
+- observacao
+- created_at
+- updated_at
+
+CAMPOS IMPORTANTES DO FRETE OPERACIONAL:
+- id
+- venda_id
+- entrega_id
+- veiculo_id
+- transportadora_id
+- tabela_frete_id
+- regiao
+- distancia_km
+- peso_total
+- custo_calculado
+- custo_real
+- status
+- observacao
+- created_at
+- updated_at
+
+VALIDAÇÕES IMPORTANTES:
+- tipo_calculo deve aceitar apenas valores válidos
+- nome da tabela obrigatório
+- status deve aceitar apenas valores válidos
+- peso e distância devem ser números válidos quando aplicáveis
+- venda_id deve existir para frete vinculado à venda
+- entrega_id deve existir quando informado
+- veiculo_id deve existir quando informado
+- não permitir vínculos inconsistentes
+- custo_real deve ser número válido maior ou igual a zero
+- tratar frete inexistente corretamente
+- tratar tabela inexistente corretamente
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- cálculo de frete deve poder ocorrer no momento da venda
+- o sistema deve permitir configurar diferentes critérios de cálculo
+- custo_calculado e custo_real não são a mesma coisa
+- frete pode ser próprio ou terceirizado
+- vínculo com veículo deve respeitar a frota cadastrada
+- vínculo com entrega deve respeitar o fluxo logístico
+- o módulo deve permitir análise de margem operacional entre frete previsto e frete real
+- a estrutura deve servir tanto para uso transacional quanto gerencial
+- o cálculo deve ficar isolado em service reutilizável
+
+ROTAS ESPERADAS NO MÍNIMO:
+TABELAS DE FRETE:
+- POST /fretes/tabelas
+- GET /fretes/tabelas
+- GET /fretes/tabelas/:id
+- PUT /fretes/tabelas/:id
+- PATCH /fretes/tabelas/:id/inativar
+
+CÁLCULO E OPERAÇÃO:
+- POST /fretes/calcular
+- GET /fretes
+- GET /fretes/:id
+- GET /fretes/venda/:vendaId
+- PATCH /fretes/:id/vincular-entrega/:entregaId
+- PATCH /fretes/:id/vincular-veiculo/:veiculoId
+- PATCH /fretes/:id/registrar-custo-real
+- GET /fretes/periodo
+- GET /fretes/regiao/:regiao
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/freteController.js
+- src/services/freteService.js
+- src/models/freteModel.js
+- src/models/tabelaFreteModel.js
+- src/routes/freteRoutes.js
+- helpers necessários para regras de cálculo
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- fretes.create
+- fretes.read
+- fretes.update
+- fretes.calculate
+- fretes.tables.create
+- fretes.tables.read
+- fretes.tables.update
+- fretes.reports.read
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estratégia de modelagem do frete
+3. Estrutura dos arquivos
+4. Código completo dos arquivos
+5. Rotas protegidas com autenticação e autorização
+6. Validações de entrada
+7. Estratégia de cálculo do frete
+8. Exemplo de payload para cadastro de tabela
+9. Exemplo de payload para cálculo de frete
+10. Exemplo de payload para registrar custo real
+11. Exemplo de resposta da API
+12. Estrutura preparada para relatórios e dashboard
+13. Instrução curta de integração com vendas, entregas e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não misturar custo previsto com custo real
+- Não criar cálculo frágil ou difícil de manter
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_fretes.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de frete estiver completo
+- O cadastro de tabelas estiver estruturado
+- O cálculo automático estiver preparado
+- O custo real estiver contemplado
+- A integração com vendas e entregas estiver pronta
+- O conteúdo final estiver consolidado em um único documento markdown
