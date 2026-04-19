@@ -1,0 +1,213 @@
+PROMPT 09 — MÓDULO FINANCEIRO DE DUPLICATAS E PAGAMENTOS
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com foco em financeiro, contas a receber e rastreabilidade de pagamentos.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- módulos de fornecedores, clientes, produtos, estoque e vendas
+- padrão profissional de rotas, services, models e controllers
+
+Agora preciso construir o módulo Financeiro, com foco em duplicatas e pagamentos, respeitando o SRS do projeto.
+
+Segundo o SRS, o módulo Financeiro deve permitir:
+- gerar duplicata automaticamente a partir de uma venda a prazo
+- registrar campos como número, valor, vencimento, cliente, venda de origem e status
+- manter status da duplicata:
+  - EM_ABERTO
+  - PAGO_PARCIALMENTE
+  - PAGO
+  - VENCIDO
+- registrar pagamentos com data e forma de pagamento
+- listar duplicatas por cliente, período e status
+- alertar duplicatas vencendo nos próximos X dias
+
+Esse módulo deve ficar preparado para integração total com vendas, clientes, relatórios e dashboard.
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Controle de permissões
+- Módulo de vendas já preparado para vendas à vista, a prazo e parceladas
+- Estrutura pronta para integração entre módulos
+
+OBJETIVO:
+Construir o módulo completo de duplicatas e pagamentos, de forma profissional, segura, auditável, consistente financeiramente e pronta para uso real no ERP.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de negócio diretamente no controller
+- Não fazer controller gordo
+- Usar validações reais
+- Toda duplicata deve manter consistência com a venda de origem
+- Todo pagamento deve atualizar corretamente o saldo e o status da duplicata
+- Não permitir pagamento inconsistente
+- Toda rota deve respeitar autenticação e autorização
+- O módulo deve ficar preparado para integração com dashboard, relatórios e vendas
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Gerar duplicata a partir de venda
+2. Listar duplicatas
+3. Buscar duplicata por id
+4. Filtrar duplicatas por cliente, período e status
+5. Registrar pagamento
+6. Listar pagamentos de uma duplicata
+7. Recalcular status da duplicata após pagamento
+8. Consultar duplicatas vencidas
+9. Consultar duplicatas vencendo nos próximos X dias
+10. Preparar estrutura para vendas parceladas com múltiplas duplicatas
+11. Preparar integração com dashboard e relatórios
+
+STATUS DE DUPLICATA ESPERADOS:
+- EM_ABERTO
+- PAGO_PARCIALMENTE
+- PAGO
+- VENCIDO
+
+FORMAS DE PAGAMENTO ESPERADAS:
+- DINHEIRO
+- PIX
+- CARTAO_CREDITO
+- CARTAO_DEBITO
+- BOLETO
+- TRANSFERENCIA
+- OUTRO
+
+ENTIDADES ENVOLVIDAS:
+- duplicatas
+- pagamentos
+- vendas
+- clientes
+- usuarios
+
+CAMPOS IMPORTANTES DA DUPLICATA:
+- id
+- numero
+- venda_id
+- cliente_id
+- valor_original
+- valor_pago
+- valor_em_aberto
+- vencimento
+- status
+- parcela_numero
+- total_parcelas
+- observacao
+- created_at
+- updated_at
+
+CAMPOS IMPORTANTES DO PAGAMENTO:
+- id
+- duplicata_id
+- valor
+- data_pagamento
+- forma_pagamento
+- observacao
+- usuario_id
+- created_at
+- updated_at
+
+VALIDAÇÕES IMPORTANTES:
+- venda_id deve existir para geração vinculada
+- cliente_id deve existir
+- valor_original deve ser número válido maior que zero
+- vencimento obrigatório
+- status deve aceitar apenas valores válidos
+- pagamento deve ter valor maior que zero
+- não permitir pagamento acima do saldo em aberto, a menos que você implemente e justifique política de crédito ou troco interno
+- forma_pagamento deve aceitar apenas valores válidos
+- duplicata deve existir
+- não permitir pagamento em duplicata cancelada, se você decidir suportar cancelamento e justificar
+- tratar duplicata inexistente corretamente
+- tratar venda inexistente corretamente
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- duplicata pode nascer automaticamente a partir de uma venda a prazo
+- venda parcelada deve permitir múltiplas duplicatas
+- valor_em_aberto deve ser recalculado corretamente
+- status deve mudar automaticamente conforme os pagamentos:
+  - sem pagamento e dentro do prazo = EM_ABERTO
+  - sem quitação total e com parte paga = PAGO_PARCIALMENTE
+  - quitação total = PAGO
+  - vencida e não quitada = VENCIDO
+- a soma dos pagamentos não deve quebrar a consistência do financeiro
+- toda operação deve manter rastreabilidade de usuário e data
+- estrutura deve ficar pronta para alertas de vencimento
+- estrutura deve ficar pronta para uso em dashboard e relatórios
+
+ROTAS ESPERADAS NO MÍNIMO:
+- POST /financeiro/duplicatas/gerar
+- GET /financeiro/duplicatas
+- GET /financeiro/duplicatas/:id
+- GET /financeiro/duplicatas/:id/pagamentos
+- POST /financeiro/duplicatas/:id/pagamentos
+- GET /financeiro/duplicatas/status/:status
+- GET /financeiro/duplicatas/cliente/:clienteId
+- GET /financeiro/duplicatas/alertas/vencidas
+- GET /financeiro/duplicatas/alertas/vencendo
+- POST /financeiro/duplicatas/gerar-parcelas
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/financeiroController.js
+- src/services/financeiroService.js
+- src/models/duplicataModel.js
+- src/models/pagamentoModel.js
+- src/routes/financeiroRoutes.js
+- validações e helpers necessários
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- financeiro.duplicatas.create
+- financeiro.duplicatas.read
+- financeiro.duplicatas.update
+- financeiro.pagamentos.create
+- financeiro.pagamentos.read
+- financeiro.alertas.read
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estrutura dos arquivos
+3. Código completo dos arquivos
+4. Rotas protegidas com autenticação e autorização
+5. Validações de entrada
+6. Tratamento de erros
+7. Exemplo de payload para gerar uma duplicata única
+8. Exemplo de payload para gerar duplicatas parceladas
+9. Exemplo de payload para registrar pagamento
+10. Exemplo de resposta da API
+11. Estratégia usada para recalcular saldo e status
+12. Estrutura para alertas de vencidas e vencendo
+13. Estrutura preparada para dashboard e relatórios
+14. Instrução curta de integração com o app.js e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não tratar financeiro de forma frágil
+- Não permitir pagamento inconsistente
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_financeiro_duplicatas_pagamentos.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de duplicatas estiver completo
+- O registro de pagamentos estiver implementado
+- O recálculo de saldo e status estiver funcionando
+- A estrutura para parcelas estiver preparada
+- A estrutura de alertas estiver pronta
+- O conteúdo final estiver consolidado em um único documento markdown
