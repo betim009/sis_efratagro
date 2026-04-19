@@ -1,0 +1,257 @@
+PROMPT 08 — MÓDULO DE VENDAS (VENDA NORMAL, VENDA DIRETA E VENDA FUTURA)
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com fluxo comercial e integração com estoque e financeiro.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- módulos de fornecedores, clientes, produtos e estoque
+- padrão profissional de rotas, services, models e controllers
+
+Agora preciso construir o módulo de Vendas, respeitando o SRS do projeto.
+
+Segundo o SRS, o módulo de Vendas deve permitir:
+- criar ordens de venda com cliente, produtos e quantidades
+- aplicar desconto por item e por pedido
+- calcular frete
+- selecionar forma de pagamento
+- gerar duplicata automaticamente quando a venda for a prazo
+- controlar entrega
+- diferenciar visualmente e logicamente:
+  - venda normal
+  - venda direta ao cliente
+  - venda futura
+
+Também existem regras específicas:
+- venda futura possui data futura de entrega/faturamento
+- venda futura possui status:
+  - PENDENTE
+  - CONFIRMADO
+  - CANCELADO
+- venda direta possui fluxo simplificado
+- venda normal e venda direta podem impactar estoque de forma imediata
+- venda futura pode reservar estoque opcionalmente
+- o sistema deve ficar preparado para integração com frete, entrega e financeiro
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Controle de permissões
+- Produtos já cadastráveis
+- Estoque já controlado por local
+- Estrutura pronta para integração entre módulos
+
+OBJETIVO:
+Construir o módulo completo de Vendas, suportando venda normal, venda direta e venda futura, de forma profissional, segura, validada e integrada com estoque e financeiro.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de negócio diretamente no controller
+- Não fazer controller gordo
+- Usar validações reais
+- Toda venda deve registrar itens corretamente
+- Toda venda deve calcular totais de forma consistente
+- Não permitir venda com cliente inválido
+- Não permitir venda com produto inválido
+- Não permitir item com quantidade inválida
+- Integrar com estoque de forma segura
+- Preparar integração com duplicatas, entrega e frete
+- Toda rota deve respeitar autenticação e autorização
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Criar venda normal
+2. Criar venda direta
+3. Criar venda futura
+4. Listar vendas
+5. Buscar venda por id
+6. Atualizar status de venda futura
+7. Cancelar venda
+8. Confirmar venda futura e converter em venda operacional
+9. Consultar itens da venda
+10. Preparar integração com geração de duplicata
+11. Preparar integração com entrega
+12. Preparar integração com cálculo de frete
+
+TIPOS DE VENDA ESPERADOS:
+- NORMAL
+- DIRETA
+- FUTURA
+
+STATUS DE VENDA FUTURA ESPERADOS:
+- PENDENTE
+- CONFIRMADO
+- CANCELADO
+
+FORMAS DE PAGAMENTO ESPERADAS:
+- A_VISTA
+- A_PRAZO
+- PARCELADO
+
+ENTIDADES ENVOLVIDAS:
+- vendas
+- itens_venda
+- clientes
+- produtos
+- estoques
+- movimentacoes_estoque
+- duplicatas
+- entregas
+- fretes
+- usuarios
+
+CAMPOS IMPORTANTES DA VENDA:
+- id
+- cliente_id
+- tipo_venda
+- forma_pagamento
+- status_venda
+- status_entrega
+- data_venda
+- data_futura_entrega
+- desconto_total
+- subtotal
+- valor_frete
+- valor_total
+- observacao
+- usuario_id
+- created_at
+- updated_at
+
+CAMPOS IMPORTANTES DOS ITENS:
+- id
+- venda_id
+- produto_id
+- quantidade
+- preco_unitario
+- desconto_item
+- subtotal_item
+- total_item
+- created_at
+- updated_at
+
+VALIDAÇÕES IMPORTANTES:
+- cliente_id obrigatório para venda normal e futura
+- em venda direta, definir e justificar se cliente pode ser opcional
+- tipo_venda deve aceitar apenas:
+  - NORMAL
+  - DIRETA
+  - FUTURA
+- forma_pagamento deve aceitar apenas:
+  - A_VISTA
+  - A_PRAZO
+  - PARCELADO
+- itens da venda obrigatórios
+- cada item deve possuir produto_id e quantidade válida
+- quantidade deve ser maior que zero
+- produto deve existir e estar ativo
+- cliente deve existir e estar em condição válida para compra
+- validar cliente bloqueado e cliente inativo
+- desconto_item e desconto_total devem ser números válidos
+- não permitir total negativo
+- data_futura_entrega deve ser obrigatória para venda futura
+- não permitir confirmação incoerente de venda futura
+- tratar venda inexistente corretamente
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- subtotal da venda deve ser calculado a partir dos itens
+- valor_total deve considerar subtotal, descontos e frete
+- venda normal:
+  - pode baixar estoque imediatamente
+  - pode gerar duplicata se pagamento não for à vista
+- venda direta:
+  - fluxo simplificado
+  - pode baixar estoque imediatamente
+  - pode ter emissão imediata de comprovante preparada
+- venda futura:
+  - não deve ser tratada igual a venda normal
+  - deve registrar data futura
+  - pode reservar estoque opcionalmente
+  - deve poder ser confirmada depois
+  - ao confirmar, deve poder gerar os efeitos operacionais necessários
+- cancelamento deve respeitar o estado da venda
+- se houver baixa de estoque, ela deve ser feita com segurança e rastreabilidade
+- estrutura deve ficar preparada para geração automática de duplicata em vendas a prazo ou parceladas
+- estrutura deve ficar preparada para integração com entrega e frete
+
+ROTAS ESPERADAS NO MÍNIMO:
+- POST /vendas/normal
+- POST /vendas/direta
+- POST /vendas/futura
+- GET /vendas
+- GET /vendas/:id
+- GET /vendas/:id/itens
+- PATCH /vendas/:id/cancelar
+- PATCH /vendas/futuras/:id/confirmar
+- PATCH /vendas/futuras/:id/status
+- GET /vendas/futuras/proximas
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/vendaController.js
+- src/services/vendaService.js
+- src/models/vendaModel.js
+- src/models/itemVendaModel.js
+- src/routes/vendaRoutes.js
+- validações e helpers necessários
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- vendas.create
+- vendas.read
+- vendas.update
+- vendas.cancel
+- vendas.future.confirm
+- vendas.future.read
+- financeiro.duplicatas.create
+- estoque.movimentacoes.create
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estrutura dos arquivos
+3. Código completo dos arquivos
+4. Rotas protegidas com autenticação e autorização
+5. Validações de entrada
+6. Tratamento de erros
+7. Exemplo de payload para venda normal
+8. Exemplo de payload para venda direta
+9. Exemplo de payload para venda futura
+10. Exemplo de resposta da API
+11. Estratégia usada para cálculo dos totais
+12. Estratégia usada para integração com estoque
+13. Estrutura preparada para geração de duplicatas
+14. Estrutura preparada para entrega
+15. Estrutura preparada para cálculo de frete
+16. Instrução curta de integração com o app.js e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não tratar todos os tipos de venda da mesma forma
+- Não deixar cálculo financeiro frágil
+- Não permitir inconsistência entre venda e itens
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_vendas.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de vendas estiver completo
+- Os três tipos de venda estiverem implementados
+- As validações estiverem implementadas
+- A estrutura de itens estiver funcionando
+- A integração com estoque estiver preparada ou implementada de forma coerente
+- A geração futura de duplicatas estiver preparada
+- O conteúdo final estiver consolidado em um único documento markdown
