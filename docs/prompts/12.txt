@@ -1,0 +1,227 @@
+PROMPT 12 — DASHBOARD GERENCIAL COM MÉTRICAS, ALERTAS E CONSOLIDAÇÕES
+
+Você é um Engenheiro Backend Sênior especializado em Node.js, Express, PostgreSQL e arquitetura MSC para sistemas ERP com foco em agregações, indicadores e painéis gerenciais.
+
+CONTEXTO:
+Estou construindo um ERP comercial com backend em Node.js + Express, banco PostgreSQL e arquitetura MSC.
+O sistema já possui prompts anteriores cobrindo:
+- estrutura inicial do backend
+- modelagem do banco
+- autenticação e autorização
+- fornecedores
+- clientes
+- produtos
+- estoque
+- vendas
+- financeiro
+- frota
+- entregas
+
+Agora preciso construir o módulo de Dashboard, respeitando o SRS do projeto.
+
+Segundo o SRS, o dashboard deve oferecer:
+- painel principal com visão consolidada
+- widgets informativos acessíveis por perfil
+- filtros por período e unidade
+- gráficos e consolidações para apoio à decisão
+
+Indicadores esperados no SRS:
+- saldo de estoque por produto / local
+- vendas do dia / semana / mês
+- duplicatas em aberto e vencidas
+- pedidos de venda futura com prazo próximo
+- alertas de estoque mínimo
+- status da frota (veículos em manutenção)
+- gráficos de desempenho de vendas no tempo
+
+Esse módulo deve ficar preparado para ser consumido pelo frontend em React + Vite + Material UI.
+
+O QUE TENHO ATÉ AQUI:
+- Backend em Node.js + Express
+- PostgreSQL
+- Arquitetura MSC
+- Middlewares de autenticação e autorização
+- Banco já modelado
+- Módulos de negócio principais já definidos
+- Estrutura pronta para integração entre módulos
+- Dados distribuídos entre estoque, vendas, financeiro, frota e entregas
+
+OBJETIVO:
+Construir o módulo completo de Dashboard gerencial, com endpoints consolidados, métricas operacionais e visão resumida do sistema, de forma profissional, segura, performática e pronta para uso real.
+
+REGRAS:
+- Use JavaScript com Node.js e Express
+- Não use TypeScript
+- Respeite a arquitetura MSC
+- Não colocar regra de negócio diretamente no controller
+- Não fazer controller gordo
+- Usar queries e agregações coerentes com PostgreSQL
+- O dashboard deve ser montado com foco em performance
+- O módulo deve respeitar autenticação e autorização
+- O resultado deve ficar preparado para filtros por período, unidade e perfil
+- Sempre que fizer uma decisão importante de agregação, explique de forma curta e objetiva
+- Ao final, gere tudo em um documento markdown
+
+ESCOPO DESTE PROMPT:
+1. Endpoint de resumo geral do dashboard
+2. Endpoint de métricas de vendas
+3. Endpoint de métricas financeiras
+4. Endpoint de métricas de estoque
+5. Endpoint de métricas de vendas futuras
+6. Endpoint de métricas de frota
+7. Endpoint de séries temporais de vendas
+8. Endpoint de alertas consolidados
+9. Filtros por período
+10. Preparação para filtros por unidade/local
+11. Estrutura para resposta segmentada por perfil de usuário
+
+BLOCOS DE INFORMAÇÃO ESPERADOS:
+RESUMO GERAL:
+- total de vendas do dia
+- total de vendas da semana
+- total de vendas do mês
+- quantidade de clientes ativos
+- quantidade de produtos ativos
+- quantidade de entregas pendentes
+- quantidade de veículos em manutenção
+
+FINANCEIRO:
+- total de duplicatas em aberto
+- total de duplicatas vencidas
+- valor total em aberto
+- valor total vencido
+- quantidade de duplicatas vencendo nos próximos X dias
+
+ESTOQUE:
+- quantidade de produtos abaixo do estoque mínimo
+- saldo consolidado por produto
+- saldo por local
+- top produtos com necessidade de reposição
+
+VENDAS FUTURAS:
+- quantidade de pedidos futuros pendentes
+- pedidos com prazo próximo
+- valor total previsto em vendas futuras
+
+FROTA:
+- veículos em manutenção
+- total gasto com manutenção em período
+- quantidade de manutenções preventivas e corretivas
+
+SÉRIE TEMPORAL:
+- vendas por dia
+- vendas por semana
+- vendas por mês
+- quantidade de pedidos no período
+
+ALERTAS:
+- estoque baixo
+- duplicatas vencidas
+- vendas futuras próximas
+- manutenção preventiva pendente
+- entregas não concluídas
+
+ENTIDADES ENVOLVIDAS:
+- vendas
+- itens_venda
+- clientes
+- produtos
+- estoques
+- movimentacoes_estoque
+- duplicatas
+- pagamentos
+- entregas
+- veiculos
+- manutencoes
+- usuarios
+
+VALIDAÇÕES IMPORTANTES:
+- filtros de data devem ser válidos
+- tratar ausência de dados com retorno consistente
+- não quebrar resposta do dashboard quando um bloco não tiver dados
+- não permitir acesso sem autenticação
+- permitir restrição por perfil quando aplicável
+- tratar parâmetros inválidos com erro padronizado
+
+REGRAS DE NEGÓCIO IMPORTANTES:
+- dashboard deve consolidar dados reais dos módulos anteriores
+- respostas devem ser estáveis e previsíveis para consumo do frontend
+- métricas financeiras devem refletir status atual das duplicatas
+- alertas devem respeitar o estado atual do sistema
+- séries temporais devem aceitar granularidade configurável
+- a resposta deve ser pensada para evitar múltiplas chamadas desnecessárias no frontend
+- o módulo deve ficar preparado para crescimento futuro sem virar um endpoint bagunçado
+
+ROTAS ESPERADAS NO MÍNIMO:
+- GET /dashboard/resumo
+- GET /dashboard/vendas
+- GET /dashboard/financeiro
+- GET /dashboard/estoque
+- GET /dashboard/vendas-futuras
+- GET /dashboard/frota
+- GET /dashboard/series/vendas
+- GET /dashboard/alertas
+- GET /dashboard/completo
+
+PARÂMETROS DE FILTRO ESPERADOS:
+- dataInicio
+- dataFim
+- unidadeId ou localId, se aplicável
+- granularidade:
+  - DIA
+  - SEMANA
+  - MES
+
+ARQUIVOS ESPERADOS NO MÍNIMO:
+- src/controllers/dashboardController.js
+- src/services/dashboardService.js
+- src/models/dashboardModel.js ou estratégia equivalente
+- src/routes/dashboardRoutes.js
+- helpers necessários para filtros e agregações
+
+PERMISSÕES ESPERADAS COMO EXEMPLO:
+- dashboard.read
+- dashboard.sales.read
+- dashboard.finance.read
+- dashboard.stock.read
+- dashboard.fleet.read
+- dashboard.alerts.read
+
+O QUE DEVE SER ENTREGUE:
+1. Explicação curta da implementação
+2. Estratégia de organização do dashboard
+3. Estrutura dos arquivos
+4. Código completo dos arquivos
+5. Rotas protegidas com autenticação e autorização
+6. Validações de filtros
+7. Queries/agregações principais
+8. Exemplo de resposta para cada endpoint
+9. Estrutura do endpoint /dashboard/completo
+10. Estratégia de performance e consolidação
+11. Preparação para consumo no frontend
+12. Instrução curta de integração com o app.js e rotas principais
+
+PONTOS IMPORTANTES:
+- Não fazer solução amadora
+- Não criar um dashboard baseado em dados mockados
+- Não deixar cada endpoint com resposta incoerente
+- Não ignorar performance em consultas agregadas
+- Não quebrar o padrão do backend já criado
+- O resultado precisa ficar pronto para crescimento real dentro do ERP
+
+FORMATO DA RESPOSTA:
+- Entregue em Markdown
+- Não resuma código
+- Mostre o código completo
+- Organize a resposta por seções
+- Ao final, monte um arquivo final chamado:
+  modulo_dashboard.md
+
+CRITÉRIO DE CONCLUSÃO:
+Termine apenas quando:
+- O módulo de dashboard estiver completo
+- Os endpoints de consolidação estiverem estruturados
+- As métricas principais estiverem contempladas
+- Os alertas estiverem preparados
+- A série temporal de vendas estiver pronta
+- O conteúdo final estiver consolidado em um único documento markdown
