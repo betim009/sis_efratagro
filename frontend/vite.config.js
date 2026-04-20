@@ -5,6 +5,10 @@ import { loadEnv } from "vite";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const allowedHosts = (env.VITE_ALLOWED_HOSTS || "agro.h3info.com")
+    .split(",")
+    .map((host) => host.trim())
+    .filter(Boolean);
 
   return {
     plugins: [react()],
@@ -16,6 +20,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       host: true,
+      allowedHosts,
       proxy: {
         "/api": {
           target: env.VITE_API_PROXY_TARGET || "http://localhost:3001",
