@@ -1,0 +1,12 @@
+{
+  "name": "sis-efratagro",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CLI raiz para operar o ambiente local do ERP Efrat Agro",
+  "scripts": {
+    "setup": "node scripts/dev-cli.js setup",
+    "dev": "node scripts/dev-cli.js dev",
+    "reset": "node scripts/dev-cli.js reset",
+    "stop": "node scripts/dev-cli.js stop"
+  }
+}
