@@ -163,7 +163,8 @@ CREATE TABLE IF NOT EXISTS estoques (
   atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   CONSTRAINT uq_estoques_produto_local UNIQUE (produto_id, local_estoque_id),
   CONSTRAINT estoques_quantidade_check CHECK (quantidade >= 0),
-  CONSTRAINT estoques_reservado_check CHECK (reservado >= 0)
+  CONSTRAINT estoques_reservado_check CHECK (reservado >= 0),
+  CONSTRAINT estoques_reservado_lte_quantidade_check CHECK (reservado <= quantidade)
 );
 
 CREATE TABLE IF NOT EXISTS vendas (
@@ -227,10 +228,12 @@ CREATE TABLE IF NOT EXISTS duplicatas (
   observacoes TEXT,
   criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT uq_duplicatas_venda_parcela UNIQUE (venda_id, parcela),
   CONSTRAINT duplicatas_status_check CHECK (status IN ('EM_ABERTO', 'PAGO_PARCIALMENTE', 'PAGO', 'VENCIDO', 'CANCELADO')),
   CONSTRAINT duplicatas_parcela_check CHECK (parcela > 0),
   CONSTRAINT duplicatas_valor_total_check CHECK (valor_total >= 0),
-  CONSTRAINT duplicatas_valor_aberto_check CHECK (valor_aberto >= 0)
+  CONSTRAINT duplicatas_valor_aberto_check CHECK (valor_aberto >= 0),
+  CONSTRAINT duplicatas_valor_aberto_lte_total_check CHECK (valor_aberto <= valor_total)
 );
 
 CREATE TABLE IF NOT EXISTS pagamentos (
@@ -313,7 +316,12 @@ CREATE TABLE IF NOT EXISTS fretes (
   CONSTRAINT fretes_peso_total_kg_check CHECK (peso_total_kg >= 0),
   CONSTRAINT fretes_distancia_km_check CHECK (distancia_km >= 0),
   CONSTRAINT fretes_valor_estimado_check CHECK (valor_estimado >= 0),
-  CONSTRAINT fretes_valor_real_check CHECK (valor_real IS NULL OR valor_real >= 0)
+  CONSTRAINT fretes_valor_real_check CHECK (valor_real IS NULL OR valor_real >= 0),
+  CONSTRAINT fretes_modalidade_referencia_check CHECK (
+    (modalidade = 'PROPRIO' AND veiculo_id IS NOT NULL AND transportadora_fornecedor_id IS NULL)
+    OR
+    (modalidade = 'TERCEIRO' AND transportadora_fornecedor_id IS NOT NULL AND veiculo_id IS NULL)
+  )
 );
 
 CREATE TABLE IF NOT EXISTS entregas (
@@ -388,6 +396,7 @@ CREATE INDEX IF NOT EXISTS idx_perfil_permissoes_perfil_id ON perfil_permissoes 
 CREATE INDEX IF NOT EXISTS idx_usuarios_perfil_id ON usuarios (perfil_id);
 CREATE INDEX IF NOT EXISTS idx_usuarios_status ON usuarios (status);
 CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios (email);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_usuarios_email_lower ON usuarios ((LOWER(email)));
 
 CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_usuario_id ON sessoes_usuario (usuario_id);
 CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_token_jti ON sessoes_usuario (token_jti);
@@ -541,7 +550,7 @@ CREATE INDEX IF NOT EXISTS idx_logs_auditoria_tabela_registro ON logs_auditoria 
 -- ═══════════════════════════════════════════════════════════════════════
 
 CREATE TABLE IF NOT EXISTS notificacoes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   usuario_id UUID NOT NULL REFERENCES usuarios(id),
   tipo VARCHAR(40) NOT NULL,
   titulo VARCHAR(200) NOT NULL,

@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "db:migrate": "psql \"$DATABASE_URL\" -f src/database/migrations.sql",
-    "db:seed": "psql \"$DATABASE_URL\" -f src/database/seeders.sql",
+    "db:migrate": "node scripts/run-sql.js src/database/migrations.sql",
+    "db:seed": "node scripts/run-sql.js src/database/seeders.sql",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down"
   },
