@@ -1,0 +1,6 @@
+admin@sisefratagro.local / Adm@12345
+vendedor@sisefratagro.local / Vend@12345
+estoquista@sisefratagro.local / Estq@12345
+logistica@sisefratagro.local / Log@12345
+financeiro@sisefratagro.local / Fin@12345
+gerente@sisefratagro.local / Ger@12345

@@ -1,0 +1,593 @@
+BEGIN;
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE TABLE IF NOT EXISTS perfis_acesso (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome VARCHAR(100) NOT NULL UNIQUE,
+  descricao TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT perfis_acesso_status_check CHECK (status IN ('ATIVO', 'INATIVO'))
+);
+
+CREATE TABLE IF NOT EXISTS perfil_permissoes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  perfil_id UUID NOT NULL REFERENCES perfis_acesso(id) ON DELETE CASCADE,
+  modulo VARCHAR(80) NOT NULL,
+  pode_criar BOOLEAN NOT NULL DEFAULT FALSE,
+  pode_ler BOOLEAN NOT NULL DEFAULT TRUE,
+  pode_atualizar BOOLEAN NOT NULL DEFAULT FALSE,
+  pode_excluir BOOLEAN NOT NULL DEFAULT FALSE,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT uq_perfil_permissoes UNIQUE (perfil_id, modulo)
+);
+
+CREATE TABLE IF NOT EXISTS usuarios (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  perfil_id UUID NOT NULL REFERENCES perfis_acesso(id),
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  senha_hash VARCHAR(255) NOT NULL,
+  telefone VARCHAR(20),
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
+  ultimo_login_em TIMESTAMPTZ,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT usuarios_status_check CHECK (status IN ('ATIVO', 'INATIVO', 'BLOQUEADO'))
+);
+
+CREATE TABLE IF NOT EXISTS sessoes_usuario (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  token_jti UUID NOT NULL UNIQUE,
+  ip_origem INET,
+  user_agent TEXT,
+  ultimo_acesso_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expira_em TIMESTAMPTZ NOT NULL,
+  revogada_em TIMESTAMPTZ,
+  motivo_revogacao VARCHAR(120),
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS tokens_reset_senha (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  token_hash VARCHAR(255) NOT NULL UNIQUE,
+  expira_em TIMESTAMPTZ NOT NULL,
+  utilizado_em TIMESTAMPTZ,
+  ip_origem INET,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS fornecedores (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo_pessoa VARCHAR(2) NOT NULL DEFAULT 'PJ',
+  razao_social VARCHAR(160) NOT NULL,
+  nome_fantasia VARCHAR(160),
+  cpf_cnpj VARCHAR(20) NOT NULL UNIQUE,
+  inscricao_estadual VARCHAR(30),
+  email VARCHAR(150),
+  telefone VARCHAR(20),
+  contato_responsavel VARCHAR(120),
+  cep VARCHAR(10),
+  logradouro VARCHAR(150),
+  numero VARCHAR(20),
+  complemento VARCHAR(120),
+  bairro VARCHAR(100),
+  cidade VARCHAR(100),
+  estado CHAR(2),
+  observacoes TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT fornecedores_tipo_pessoa_check CHECK (tipo_pessoa IN ('PF', 'PJ')),
+  CONSTRAINT fornecedores_status_check CHECK (status IN ('ATIVO', 'INATIVO'))
+);
+
+CREATE TABLE IF NOT EXISTS clientes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tipo_pessoa VARCHAR(2) NOT NULL DEFAULT 'PJ',
+  nome_razao_social VARCHAR(160) NOT NULL,
+  nome_fantasia VARCHAR(160),
+  cpf_cnpj VARCHAR(20) NOT NULL UNIQUE,
+  inscricao_estadual VARCHAR(30),
+  email VARCHAR(150),
+  telefone VARCHAR(20),
+  cep VARCHAR(10),
+  logradouro VARCHAR(150),
+  numero VARCHAR(20),
+  complemento VARCHAR(120),
+  bairro VARCHAR(100),
+  cidade VARCHAR(100),
+  estado CHAR(2),
+  limite_credito NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  observacoes TEXT,
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT clientes_tipo_pessoa_check CHECK (tipo_pessoa IN ('PF', 'PJ')),
+  CONSTRAINT clientes_status_check CHECK (status IN ('ATIVO', 'BLOQUEADO', 'INATIVO')),
+  CONSTRAINT clientes_limite_credito_check CHECK (limite_credito >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS produtos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  fornecedor_padrao_id UUID REFERENCES fornecedores(id),
+  codigo VARCHAR(50) NOT NULL UNIQUE,
+  codigo_barras VARCHAR(50),
+  referencia_interna VARCHAR(50),
+  nome VARCHAR(160) NOT NULL,
+  descricao TEXT,
+  unidade_medida VARCHAR(20) NOT NULL,
+  categoria VARCHAR(80) NOT NULL,
+  preco_custo NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  preco_venda NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  peso_kg NUMERIC(12, 3) NOT NULL DEFAULT 0,
+  estoque_minimo NUMERIC(14, 3) NOT NULL DEFAULT 0,
+  ponto_reposicao NUMERIC(14, 3) NOT NULL DEFAULT 0,
+  permite_venda_sem_estoque BOOLEAN NOT NULL DEFAULT FALSE,
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT produtos_status_check CHECK (status IN ('ATIVO', 'INATIVO')),
+  CONSTRAINT produtos_preco_custo_check CHECK (preco_custo >= 0),
+  CONSTRAINT produtos_preco_venda_check CHECK (preco_venda >= 0),
+  CONSTRAINT produtos_peso_kg_check CHECK (peso_kg >= 0),
+  CONSTRAINT produtos_estoque_minimo_check CHECK (estoque_minimo >= 0),
+  CONSTRAINT produtos_ponto_reposicao_check CHECK (ponto_reposicao >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS locais_estoque (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome VARCHAR(120) NOT NULL,
+  codigo VARCHAR(30) NOT NULL UNIQUE,
+  descricao TEXT,
+  tipo_local VARCHAR(30) NOT NULL DEFAULT 'DEPOSITO',
+  endereco_referencia VARCHAR(200),
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT locais_estoque_status_check CHECK (status IN ('ATIVO', 'INATIVO')),
+  CONSTRAINT locais_estoque_tipo_local_check CHECK (tipo_local IN ('DEPOSITO', 'FILIAL', 'PRATELEIRA', 'TRANSITO'))
+);
+
+CREATE TABLE IF NOT EXISTS estoques (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  produto_id UUID NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+  local_estoque_id UUID NOT NULL REFERENCES locais_estoque(id) ON DELETE CASCADE,
+  quantidade NUMERIC(14, 3) NOT NULL DEFAULT 0,
+  reservado NUMERIC(14, 3) NOT NULL DEFAULT 0,
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT uq_estoques_produto_local UNIQUE (produto_id, local_estoque_id),
+  CONSTRAINT estoques_quantidade_check CHECK (quantidade >= 0),
+  CONSTRAINT estoques_reservado_check CHECK (reservado >= 0),
+  CONSTRAINT estoques_reservado_lte_quantidade_check CHECK (reservado <= quantidade)
+);
+
+CREATE TABLE IF NOT EXISTS vendas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  numero VARCHAR(30) NOT NULL UNIQUE,
+  cliente_id UUID NOT NULL REFERENCES clientes(id),
+  vendedor_id UUID NOT NULL REFERENCES usuarios(id),
+  tipo_venda VARCHAR(20) NOT NULL,
+  status VARCHAR(20) NOT NULL,
+  forma_pagamento VARCHAR(20) NOT NULL,
+  condicao_pagamento VARCHAR(120),
+  data_venda TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  data_faturamento TIMESTAMPTZ,
+  data_entrega_prevista DATE,
+  subtotal NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  desconto_valor NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  frete_valor NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  total_valor NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  observacoes TEXT,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT vendas_tipo_venda_check CHECK (tipo_venda IN ('NORMAL', 'FUTURA', 'DIRETA')),
+  CONSTRAINT vendas_status_check CHECK (status IN ('PENDENTE', 'CONFIRMADA', 'FATURADA', 'CANCELADA')),
+  CONSTRAINT vendas_forma_pagamento_check CHECK (forma_pagamento IN ('A_VISTA', 'A_PRAZO', 'PIX', 'CARTAO', 'BOLETO', 'DINHEIRO')),
+  CONSTRAINT vendas_subtotal_check CHECK (subtotal >= 0),
+  CONSTRAINT vendas_desconto_valor_check CHECK (desconto_valor >= 0),
+  CONSTRAINT vendas_frete_valor_check CHECK (frete_valor >= 0),
+  CONSTRAINT vendas_total_valor_check CHECK (total_valor >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS itens_venda (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  venda_id UUID NOT NULL REFERENCES vendas(id) ON DELETE CASCADE,
+  produto_id UUID NOT NULL REFERENCES produtos(id),
+  local_estoque_id UUID REFERENCES locais_estoque(id),
+  sequencia SMALLINT NOT NULL,
+  quantidade NUMERIC(14, 3) NOT NULL,
+  preco_unitario NUMERIC(14, 2) NOT NULL,
+  desconto_valor NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  total_valor NUMERIC(14, 2) NOT NULL,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT uq_itens_venda_sequencia UNIQUE (venda_id, sequencia),
+  CONSTRAINT itens_venda_quantidade_check CHECK (quantidade > 0),
+  CONSTRAINT itens_venda_preco_unitario_check CHECK (preco_unitario >= 0),
+  CONSTRAINT itens_venda_desconto_valor_check CHECK (desconto_valor >= 0),
+  CONSTRAINT itens_venda_total_valor_check CHECK (total_valor >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS duplicatas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  venda_id UUID NOT NULL REFERENCES vendas(id) ON DELETE CASCADE,
+  cliente_id UUID NOT NULL REFERENCES clientes(id),
+  numero VARCHAR(40) NOT NULL UNIQUE,
+  parcela SMALLINT NOT NULL DEFAULT 1,
+  valor_total NUMERIC(14, 2) NOT NULL,
+  valor_aberto NUMERIC(14, 2) NOT NULL,
+  vencimento DATE NOT NULL,
+  data_emissao DATE NOT NULL DEFAULT CURRENT_DATE,
+  status VARCHAR(30) NOT NULL DEFAULT 'EM_ABERTO',
+  observacoes TEXT,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT uq_duplicatas_venda_parcela UNIQUE (venda_id, parcela),
+  CONSTRAINT duplicatas_status_check CHECK (status IN ('EM_ABERTO', 'PAGO_PARCIALMENTE', 'PAGO', 'VENCIDO', 'CANCELADO')),
+  CONSTRAINT duplicatas_parcela_check CHECK (parcela > 0),
+  CONSTRAINT duplicatas_valor_total_check CHECK (valor_total >= 0),
+  CONSTRAINT duplicatas_valor_aberto_check CHECK (valor_aberto >= 0),
+  CONSTRAINT duplicatas_valor_aberto_lte_total_check CHECK (valor_aberto <= valor_total)
+);
+
+CREATE TABLE IF NOT EXISTS pagamentos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  duplicata_id UUID NOT NULL REFERENCES duplicatas(id) ON DELETE CASCADE,
+  recebido_por_usuario_id UUID REFERENCES usuarios(id),
+  forma_pagamento VARCHAR(20) NOT NULL,
+  valor NUMERIC(14, 2) NOT NULL,
+  data_pagamento TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  referencia_externa VARCHAR(80),
+  observacoes TEXT,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT pagamentos_forma_pagamento_check CHECK (
+    forma_pagamento IN ('PIX', 'BOLETO', 'CARTAO', 'DINHEIRO', 'TRANSFERENCIA')
+  ),
+  CONSTRAINT pagamentos_valor_check CHECK (valor > 0)
+);
+
+CREATE TABLE IF NOT EXISTS veiculos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  placa VARCHAR(10) NOT NULL UNIQUE,
+  modelo VARCHAR(100) NOT NULL,
+  marca VARCHAR(80),
+  ano_fabricacao SMALLINT,
+  tipo_veiculo VARCHAR(30) NOT NULL,
+  capacidade_carga_kg NUMERIC(12, 3) NOT NULL DEFAULT 0,
+  quilometragem_atual NUMERIC(12, 1) NOT NULL DEFAULT 0,
+  responsavel_usuario_id UUID REFERENCES usuarios(id),
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVO',
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT veiculos_tipo_veiculo_check CHECK (tipo_veiculo IN ('CAMINHAO', 'VAN', 'UTILITARIO', 'MOTO', 'CARRO')),
+  CONSTRAINT veiculos_status_check CHECK (status IN ('ATIVO', 'MANUTENCAO', 'INATIVO')),
+  CONSTRAINT veiculos_capacidade_carga_kg_check CHECK (capacidade_carga_kg >= 0),
+  CONSTRAINT veiculos_quilometragem_atual_check CHECK (quilometragem_atual >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS manutencoes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  veiculo_id UUID NOT NULL REFERENCES veiculos(id) ON DELETE CASCADE,
+  fornecedor_id UUID REFERENCES fornecedores(id),
+  tipo_manutencao VARCHAR(20) NOT NULL,
+  descricao TEXT NOT NULL,
+  data_manutencao DATE NOT NULL,
+  proxima_manutencao_data DATE,
+  proxima_manutencao_km NUMERIC(12, 1),
+  quilometragem_registrada NUMERIC(12, 1),
+  custo NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'CONCLUIDA',
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT manutencoes_tipo_manutencao_check CHECK (tipo_manutencao IN ('PREVENTIVA', 'CORRETIVA')),
+  CONSTRAINT manutencoes_status_check CHECK (status IN ('AGENDADA', 'EM_EXECUCAO', 'CONCLUIDA', 'CANCELADA')),
+  CONSTRAINT manutencoes_custo_check CHECK (custo >= 0),
+  CONSTRAINT manutencoes_quilometragem_registrada_check CHECK (
+    quilometragem_registrada IS NULL OR quilometragem_registrada >= 0
+  ),
+  CONSTRAINT manutencoes_proxima_manutencao_km_check CHECK (
+    proxima_manutencao_km IS NULL OR proxima_manutencao_km >= 0
+  )
+);
+
+CREATE TABLE IF NOT EXISTS fretes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  venda_id UUID NOT NULL UNIQUE REFERENCES vendas(id) ON DELETE CASCADE,
+  modalidade VARCHAR(20) NOT NULL,
+  tipo_calculo VARCHAR(20) NOT NULL,
+  regiao_destino VARCHAR(120),
+  peso_total_kg NUMERIC(12, 3) NOT NULL DEFAULT 0,
+  distancia_km NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  valor_estimado NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  valor_real NUMERIC(14, 2),
+  veiculo_id UUID REFERENCES veiculos(id),
+  transportadora_fornecedor_id UUID REFERENCES fornecedores(id),
+  observacoes TEXT,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT fretes_modalidade_check CHECK (modalidade IN ('PROPRIO', 'TERCEIRO')),
+  CONSTRAINT fretes_tipo_calculo_check CHECK (tipo_calculo IN ('REGIAO', 'PESO', 'DISTANCIA', 'MANUAL')),
+  CONSTRAINT fretes_peso_total_kg_check CHECK (peso_total_kg >= 0),
+  CONSTRAINT fretes_distancia_km_check CHECK (distancia_km >= 0),
+  CONSTRAINT fretes_valor_estimado_check CHECK (valor_estimado >= 0),
+  CONSTRAINT fretes_valor_real_check CHECK (valor_real IS NULL OR valor_real >= 0),
+  CONSTRAINT fretes_modalidade_referencia_check CHECK (
+    (modalidade = 'PROPRIO' AND veiculo_id IS NOT NULL AND transportadora_fornecedor_id IS NULL)
+    OR
+    (modalidade = 'TERCEIRO' AND transportadora_fornecedor_id IS NOT NULL AND veiculo_id IS NULL)
+  )
+);
+
+CREATE TABLE IF NOT EXISTS entregas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  venda_id UUID NOT NULL UNIQUE REFERENCES vendas(id) ON DELETE CASCADE,
+  frete_id UUID UNIQUE REFERENCES fretes(id) ON DELETE SET NULL,
+  responsavel_usuario_id UUID REFERENCES usuarios(id),
+  status VARCHAR(30) NOT NULL DEFAULT 'AGUARDANDO_DESPACHO',
+  data_saida TIMESTAMPTZ,
+  data_entrega_realizada TIMESTAMPTZ,
+  tentativa_atual SMALLINT NOT NULL DEFAULT 0,
+  comprovante_recebimento VARCHAR(255),
+  observacoes TEXT,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT entregas_status_check CHECK (
+    status IN ('AGUARDANDO_DESPACHO', 'EM_TRANSITO', 'ENTREGUE', 'NAO_REALIZADA')
+  ),
+  CONSTRAINT entregas_tentativa_atual_check CHECK (tentativa_atual >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS historico_entregas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  entrega_id UUID NOT NULL REFERENCES entregas(id) ON DELETE CASCADE,
+  status VARCHAR(30) NOT NULL,
+  data_evento TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  observacao TEXT,
+  usuario_id UUID REFERENCES usuarios(id),
+  CONSTRAINT historico_entregas_status_check CHECK (
+    status IN ('AGUARDANDO_DESPACHO', 'EM_TRANSITO', 'ENTREGUE', 'NAO_REALIZADA')
+  )
+);
+
+CREATE TABLE IF NOT EXISTS movimentacoes_estoque (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  produto_id UUID NOT NULL REFERENCES produtos(id),
+  local_origem_id UUID REFERENCES locais_estoque(id),
+  local_destino_id UUID REFERENCES locais_estoque(id),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id),
+  venda_id UUID REFERENCES vendas(id) ON DELETE SET NULL,
+  tipo_movimentacao VARCHAR(20) NOT NULL,
+  quantidade NUMERIC(14, 3) NOT NULL,
+  motivo VARCHAR(120) NOT NULL,
+  observacoes TEXT,
+  data_movimentacao TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT movimentacoes_estoque_tipo_movimentacao_check CHECK (
+    tipo_movimentacao IN ('ENTRADA', 'SAIDA', 'TRANSFERENCIA', 'AJUSTE')
+  ),
+  CONSTRAINT movimentacoes_estoque_quantidade_check CHECK (quantidade > 0),
+  CONSTRAINT movimentacoes_estoque_locais_diferentes_check CHECK (
+    local_origem_id IS NULL OR local_destino_id IS NULL OR local_origem_id <> local_destino_id
+  )
+);
+
+CREATE TABLE IF NOT EXISTS logs_auditoria (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID REFERENCES usuarios(id),
+  tabela_nome VARCHAR(100) NOT NULL,
+  registro_id UUID,
+  acao VARCHAR(20) NOT NULL,
+  dados_anteriores JSONB,
+  dados_novos JSONB,
+  ip_origem INET,
+  user_agent TEXT,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT logs_auditoria_acao_check CHECK (acao IN ('INSERT', 'UPDATE', 'DELETE', 'LOGIN', 'LOGOUT', 'PASSWORD_RESET_REQUEST', 'PASSWORD_RESET_CONFIRM'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_perfil_permissoes_perfil_id ON perfil_permissoes (perfil_id);
+
+CREATE INDEX IF NOT EXISTS idx_usuarios_perfil_id ON usuarios (perfil_id);
+CREATE INDEX IF NOT EXISTS idx_usuarios_status ON usuarios (status);
+CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios (email);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_usuarios_email_lower ON usuarios ((LOWER(email)));
+
+CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_usuario_id ON sessoes_usuario (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_token_jti ON sessoes_usuario (token_jti);
+CREATE INDEX IF NOT EXISTS idx_sessoes_usuario_expira_em ON sessoes_usuario (expira_em);
+
+CREATE INDEX IF NOT EXISTS idx_tokens_reset_senha_usuario_id ON tokens_reset_senha (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_tokens_reset_senha_expira_em ON tokens_reset_senha (expira_em);
+
+CREATE INDEX IF NOT EXISTS idx_fornecedores_status ON fornecedores (status);
+CREATE INDEX IF NOT EXISTS idx_fornecedores_razao_social ON fornecedores (razao_social);
+
+CREATE INDEX IF NOT EXISTS idx_clientes_status ON clientes (status);
+CREATE INDEX IF NOT EXISTS idx_clientes_nome_razao_social ON clientes (nome_razao_social);
+
+CREATE INDEX IF NOT EXISTS idx_produtos_fornecedor_padrao_id ON produtos (fornecedor_padrao_id);
+CREATE INDEX IF NOT EXISTS idx_produtos_status ON produtos (status);
+CREATE INDEX IF NOT EXISTS idx_produtos_nome ON produtos (nome);
+CREATE INDEX IF NOT EXISTS idx_produtos_categoria ON produtos (categoria);
+
+CREATE INDEX IF NOT EXISTS idx_locais_estoque_status ON locais_estoque (status);
+
+CREATE INDEX IF NOT EXISTS idx_estoques_produto_id ON estoques (produto_id);
+CREATE INDEX IF NOT EXISTS idx_estoques_local_estoque_id ON estoques (local_estoque_id);
+
+CREATE INDEX IF NOT EXISTS idx_vendas_cliente_id ON vendas (cliente_id);
+CREATE INDEX IF NOT EXISTS idx_vendas_vendedor_id ON vendas (vendedor_id);
+CREATE INDEX IF NOT EXISTS idx_vendas_tipo_venda ON vendas (tipo_venda);
+CREATE INDEX IF NOT EXISTS idx_vendas_status ON vendas (status);
+CREATE INDEX IF NOT EXISTS idx_vendas_data_venda ON vendas (data_venda);
+
+CREATE INDEX IF NOT EXISTS idx_itens_venda_venda_id ON itens_venda (venda_id);
+CREATE INDEX IF NOT EXISTS idx_itens_venda_produto_id ON itens_venda (produto_id);
+
+CREATE INDEX IF NOT EXISTS idx_fretes_veiculo_id ON fretes (veiculo_id);
+CREATE INDEX IF NOT EXISTS idx_fretes_transportadora_fornecedor_id ON fretes (transportadora_fornecedor_id);
+
+CREATE INDEX IF NOT EXISTS idx_entregas_status ON entregas (status);
+CREATE INDEX IF NOT EXISTS idx_entregas_responsavel_usuario_id ON entregas (responsavel_usuario_id);
+
+CREATE INDEX IF NOT EXISTS idx_historico_entregas_entrega_id ON historico_entregas (entrega_id);
+CREATE INDEX IF NOT EXISTS idx_historico_entregas_data_evento ON historico_entregas (data_evento);
+
+CREATE INDEX IF NOT EXISTS idx_duplicatas_venda_id ON duplicatas (venda_id);
+CREATE INDEX IF NOT EXISTS idx_duplicatas_cliente_id ON duplicatas (cliente_id);
+CREATE INDEX IF NOT EXISTS idx_duplicatas_status ON duplicatas (status);
+CREATE INDEX IF NOT EXISTS idx_duplicatas_vencimento ON duplicatas (vencimento);
+
+CREATE INDEX IF NOT EXISTS idx_pagamentos_duplicata_id ON pagamentos (duplicata_id);
+CREATE INDEX IF NOT EXISTS idx_pagamentos_data_pagamento ON pagamentos (data_pagamento);
+
+CREATE INDEX IF NOT EXISTS idx_veiculos_status ON veiculos (status);
+CREATE INDEX IF NOT EXISTS idx_veiculos_responsavel_usuario_id ON veiculos (responsavel_usuario_id);
+
+CREATE INDEX IF NOT EXISTS idx_manutencoes_veiculo_id ON manutencoes (veiculo_id);
+CREATE INDEX IF NOT EXISTS idx_manutencoes_data_manutencao ON manutencoes (data_manutencao);
+CREATE INDEX IF NOT EXISTS idx_manutencoes_status ON manutencoes (status);
+
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_estoque_produto_id ON movimentacoes_estoque (produto_id);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_estoque_local_origem_id ON movimentacoes_estoque (local_origem_id);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_estoque_local_destino_id ON movimentacoes_estoque (local_destino_id);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_estoque_usuario_id ON movimentacoes_estoque (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_estoque_venda_id ON movimentacoes_estoque (venda_id);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_estoque_data_movimentacao ON movimentacoes_estoque (data_movimentacao);
+CREATE INDEX IF NOT EXISTS idx_movimentacoes_estoque_tipo_movimentacao ON movimentacoes_estoque (tipo_movimentacao);
+
+CREATE INDEX IF NOT EXISTS idx_logs_auditoria_usuario_id ON logs_auditoria (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_logs_auditoria_tabela_nome ON logs_auditoria (tabela_nome);
+CREATE INDEX IF NOT EXISTS idx_logs_auditoria_acao ON logs_auditoria (acao);
+CREATE INDEX IF NOT EXISTS idx_logs_auditoria_criado_em ON logs_auditoria (criado_em);
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- MÓDULO DE FRETES — TABELAS DE CONFIGURAÇÃO E EVOLUÇÃO
+-- ═══════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS tabelas_frete (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome VARCHAR(120) NOT NULL,
+  tipo_calculo VARCHAR(20) NOT NULL,
+  regiao VARCHAR(120),
+  peso_minimo NUMERIC(12, 3) NOT NULL DEFAULT 0,
+  peso_maximo NUMERIC(12, 3) NOT NULL DEFAULT 0,
+  distancia_minima NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  distancia_maxima NUMERIC(12, 2) NOT NULL DEFAULT 0,
+  valor_base NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  valor_por_kg NUMERIC(14, 4) NOT NULL DEFAULT 0,
+  valor_por_km NUMERIC(14, 4) NOT NULL DEFAULT 0,
+  valor_fixo NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  status VARCHAR(20) NOT NULL DEFAULT 'ATIVA',
+  observacao TEXT,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT tabelas_frete_tipo_calculo_check CHECK (tipo_calculo IN ('POR_REGIAO', 'POR_PESO', 'POR_DISTANCIA', 'HIBRIDO')),
+  CONSTRAINT tabelas_frete_status_check CHECK (status IN ('ATIVA', 'INATIVA')),
+  CONSTRAINT tabelas_frete_peso_minimo_check CHECK (peso_minimo >= 0),
+  CONSTRAINT tabelas_frete_peso_maximo_check CHECK (peso_maximo >= 0),
+  CONSTRAINT tabelas_frete_distancia_minima_check CHECK (distancia_minima >= 0),
+  CONSTRAINT tabelas_frete_distancia_maxima_check CHECK (distancia_maxima >= 0),
+  CONSTRAINT tabelas_frete_valor_base_check CHECK (valor_base >= 0),
+  CONSTRAINT tabelas_frete_valor_por_kg_check CHECK (valor_por_kg >= 0),
+  CONSTRAINT tabelas_frete_valor_por_km_check CHECK (valor_por_km >= 0),
+  CONSTRAINT tabelas_frete_valor_fixo_check CHECK (valor_fixo >= 0)
+);
+
+-- Evolução da tabela fretes: adicionar status e tabela_frete_id
+ALTER TABLE fretes ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'CALCULADO';
+ALTER TABLE fretes ADD COLUMN IF NOT EXISTS tabela_frete_id UUID REFERENCES tabelas_frete(id);
+ALTER TABLE fretes DROP CONSTRAINT IF EXISTS fretes_status_check;
+ALTER TABLE fretes ADD CONSTRAINT fretes_status_check CHECK (status IN ('CALCULADO', 'VINCULADO', 'EM_TRANSITO', 'CONCLUIDO', 'CANCELADO'));
+ALTER TABLE fretes DROP CONSTRAINT IF EXISTS fretes_tipo_calculo_check;
+ALTER TABLE fretes ADD CONSTRAINT fretes_tipo_calculo_check CHECK (tipo_calculo IN ('POR_REGIAO', 'POR_PESO', 'POR_DISTANCIA', 'HIBRIDO', 'MANUAL'));
+
+CREATE INDEX IF NOT EXISTS idx_tabelas_frete_tipo_calculo ON tabelas_frete (tipo_calculo);
+CREATE INDEX IF NOT EXISTS idx_tabelas_frete_status ON tabelas_frete (status);
+CREATE INDEX IF NOT EXISTS idx_tabelas_frete_regiao ON tabelas_frete (regiao);
+CREATE INDEX IF NOT EXISTS idx_fretes_status ON fretes (status);
+CREATE INDEX IF NOT EXISTS idx_fretes_tabela_frete_id ON fretes (tabela_frete_id);
+CREATE INDEX IF NOT EXISTS idx_fretes_regiao_destino ON fretes (regiao_destino);
+CREATE INDEX IF NOT EXISTS idx_fretes_criado_em ON fretes (criado_em);
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- MÓDULO DE AUDITORIA — EVOLUÇÃO DA TABELA logs_auditoria
+-- ═══════════════════════════════════════════════════════════════════════
+
+-- Adicionar campo descricao para contexto legível
+ALTER TABLE logs_auditoria ADD COLUMN IF NOT EXISTS descricao TEXT;
+
+-- Expandir o CHECK de acao para suportar todas as ações do módulo de auditoria
+ALTER TABLE logs_auditoria DROP CONSTRAINT IF EXISTS logs_auditoria_acao_check;
+ALTER TABLE logs_auditoria ADD CONSTRAINT logs_auditoria_acao_check CHECK (
+  acao IN (
+    'INSERT', 'UPDATE', 'DELETE',
+    'INACTIVATE', 'STATUS_CHANGE',
+    'LOGIN', 'LOGOUT',
+    'PASSWORD_RESET_REQUEST', 'PASSWORD_RESET_CONFIRM',
+    'PAYMENT_REGISTER', 'STOCK_MOVEMENT',
+    'SALE_CONFIRM', 'DELIVERY_STATUS_CHANGE',
+    'FREIGHT_REAL_COST_UPDATE',
+    'FREIGHT_LINK_DELIVERY', 'FREIGHT_LINK_VEHICLE',
+    'MAINTENANCE_STATUS_CHANGE', 'VEHICLE_STATUS_CHANGE'
+  )
+);
+
+-- Ampliar tamanho do campo acao (caso ainda seja VARCHAR(20))
+ALTER TABLE logs_auditoria ALTER COLUMN acao TYPE VARCHAR(40);
+
+-- Índice composto para consultas por tabela + registro
+CREATE INDEX IF NOT EXISTS idx_logs_auditoria_tabela_registro ON logs_auditoria (tabela_nome, registro_id);
+
+-- ═══════════════════════════════════════════════════════════════════════
+-- MÓDULO DE NOTIFICAÇÕES — TABELA notificacoes
+-- ═══════════════════════════════════════════════════════════════════════
+
+CREATE TABLE IF NOT EXISTS notificacoes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id UUID NOT NULL REFERENCES usuarios(id),
+  tipo VARCHAR(40) NOT NULL,
+  titulo VARCHAR(200) NOT NULL,
+  mensagem TEXT NOT NULL,
+  prioridade VARCHAR(10) NOT NULL DEFAULT 'MEDIA',
+  status VARCHAR(15) NOT NULL DEFAULT 'NAO_LIDA',
+  entidade VARCHAR(100),
+  entidade_id UUID,
+  metadata JSONB,
+  lida_em TIMESTAMPTZ,
+  criado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  atualizado_em TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT notificacoes_tipo_check CHECK (tipo IN (
+    'ESTOQUE_BAIXO',
+    'VENDA_FUTURA_PROXIMA',
+    'DUPLICATA_VENCIDA',
+    'DUPLICATA_VENCENDO',
+    'MANUTENCAO_PENDENTE',
+    'ENTREGA_NAO_CONCLUIDA',
+    'ENTREGA_CONCLUIDA',
+    'STATUS_ENTREGA_ALTERADO',
+    'FRETE_DIVERGENTE',
+    'ALERTA_GERAL'
+  )),
+  CONSTRAINT notificacoes_prioridade_check CHECK (prioridade IN (
+    'BAIXA', 'MEDIA', 'ALTA', 'CRITICA'
+  )),
+  CONSTRAINT notificacoes_status_check CHECK (status IN (
+    'NAO_LIDA', 'LIDA', 'ARQUIVADA'
+  ))
+);
+
+CREATE INDEX IF NOT EXISTS idx_notificacoes_usuario_id ON notificacoes (usuario_id);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_usuario_status ON notificacoes (usuario_id, status);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_tipo ON notificacoes (tipo);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_prioridade ON notificacoes (prioridade);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_criado_em ON notificacoes (criado_em);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_entidade ON notificacoes (entidade, entidade_id);
+
+COMMIT;
