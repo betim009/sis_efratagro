@@ -28,8 +28,8 @@ const estoqueService = {
     return response.data;
   },
 
-  listarLocais: async () => {
-    const response = await api.get(`${BASE}/locais`);
+  listarLocais: async (params = {}) => {
+    const response = await api.get(`${BASE}/locais`, { params });
     return response.data;
   },
 

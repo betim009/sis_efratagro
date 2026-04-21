@@ -116,6 +116,7 @@ const parseListFilters = (query) => {
 
 const mapProdutoResponse = (produto) => ({
   id: produto.id,
+  public_id: produto.public_id,
   codigo: produto.codigo,
   nome: produto.nome,
   descricao: produto.descricao,

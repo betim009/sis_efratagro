@@ -3,6 +3,7 @@ const { query } = require("../config/database");
 const productSelect = `
   SELECT
     p.id,
+    p.public_id,
     p.fornecedor_padrao_id,
     p.codigo,
     p.codigo_barras,
@@ -51,6 +52,7 @@ const createProduto = async (payload) => {
       )
       RETURNING
         id,
+        public_id,
         fornecedor_padrao_id,
         codigo,
         codigo_barras,
@@ -102,6 +104,33 @@ const findProdutoById = async (produtoId) => {
   );
 
   return result.rows[0] || null;
+};
+
+const findProdutoByPublicId = async (publicId) => {
+  const result = await query(
+    `
+      ${productSelect}
+      WHERE p.public_id = $1
+      LIMIT 1
+    `,
+    [publicId]
+  );
+
+  return result.rows[0] || null;
+};
+
+const findProdutoByIdentifier = async (identifier) => {
+  if (identifier === undefined || identifier === null || identifier === "") {
+    return null;
+  }
+
+  const raw = String(identifier).trim();
+
+  if (/^\d+$/.test(raw)) {
+    return findProdutoByPublicId(Number(raw));
+  }
+
+  return findProdutoById(raw);
 };
 
 const findProdutoByCodigo = async (codigo, excludeId = null) => {
@@ -410,6 +439,8 @@ const getProdutosAlertaEstoqueMinimo = async () => {
 module.exports = {
   createProduto,
   findProdutoById,
+  findProdutoByPublicId,
+  findProdutoByIdentifier,
   findProdutoByCodigo,
   findProdutoByCodigoBarras,
   findFornecedorById,

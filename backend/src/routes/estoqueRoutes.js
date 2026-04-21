@@ -9,9 +9,63 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.get(
+  "/locais",
+  permissionMiddleware("estoque.read"),
+  estoqueController.listarLocais
+);
+
+router.post(
+  "/locais",
+  permissionMiddleware("estoque.create"),
+  estoqueController.criarLocal
+);
+
+router.put(
+  "/locais/:id",
+  permissionMiddleware("estoque.update"),
+  estoqueController.atualizarLocal
+);
+
+router.patch(
+  "/locais/:id/inativar",
+  permissionMiddleware("estoque.update"),
+  estoqueController.inativarLocal
+);
+
+router.post(
+  "/movimentacoes/entrada",
+  permissionMiddleware("estoque.create"),
+  estoqueController.registrarEntrada
+);
+
+router.post(
+  "/movimentacoes/saida",
+  permissionMiddleware("estoque.create"),
+  estoqueController.registrarSaida
+);
+
+router.post(
+  "/movimentacoes/transferencia",
+  permissionMiddleware("estoque.create"),
+  estoqueController.registrarTransferencia
+);
+
+router.get(
   "/saldos",
   permissionMiddleware("estoque.read"),
   estoqueController.listarSaldos
+);
+
+router.get(
+  "/saldos/produto/:produtoId",
+  permissionMiddleware("estoque.read"),
+  estoqueController.buscarSaldoPorProduto
+);
+
+router.get(
+  "/saldos/produto/:produtoId/local/:localId",
+  permissionMiddleware("estoque.read"),
+  estoqueController.buscarSaldoPorProdutoELocal
 );
 
 router.get(
