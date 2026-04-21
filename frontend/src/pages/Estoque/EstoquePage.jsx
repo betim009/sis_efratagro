@@ -87,11 +87,25 @@ export default function EstoquePage() {
   }, []);
 
   useEffect(() => {
-    if (tab === 0) carregarSaldos();
-    else carregarMovimentacoes();
+    const load = async () => {
+      if (tab === 0) {
+        await carregarSaldos();
+        return;
+      }
+
+      await carregarMovimentacoes();
+    };
+
+    void load();
   }, [tab, carregarSaldos, carregarMovimentacoes]);
 
-  useEffect(() => { carregarAlertas(); }, [carregarAlertas]);
+  useEffect(() => {
+    const load = async () => {
+      await carregarAlertas();
+    };
+
+    void load();
+  }, [carregarAlertas]);
 
   const handleMovSubmit = async (data) => {
     setMovDialogLoading(true);

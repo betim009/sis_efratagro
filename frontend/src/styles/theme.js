@@ -56,7 +56,7 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 8,
+    borderRadius: 12,
   },
   components: {
     MuiButton: {
@@ -65,8 +65,8 @@ const theme = createTheme({
       },
       styleOverrides: {
         root: {
-          borderRadius: 8,
-          padding: "8px 20px",
+          borderRadius: 12,
+          padding: "10px 20px",
         },
       },
     },
@@ -93,6 +93,36 @@ const theme = createTheme({
         paper: {
           border: "none",
         },
+      },
+    },
+    MuiBottomNavigation: {
+      styleOverrides: {
+        root: {
+          height: 72,
+        },
+      },
+    },
+    MuiBottomNavigationAction: {
+      styleOverrides: {
+        root: {
+          minWidth: 56,
+          paddingTop: 10,
+          "&.Mui-selected": {
+            color: "#1B5E20",
+          },
+        },
+        label: {
+          fontSize: "0.72rem",
+          "&.Mui-selected": {
+            fontSize: "0.74rem",
+            fontWeight: 700,
+          },
+        },
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        size: "medium",
       },
     },
   },

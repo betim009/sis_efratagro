@@ -57,7 +57,13 @@ export default function VendasPage() {
     }
   }, [page, rowsPerPage, search, tipoFilter, statusFilter]);
 
-  useEffect(() => { carregarVendas(); }, [carregarVendas]);
+  useEffect(() => {
+    const load = async () => {
+      await carregarVendas();
+    };
+
+    void load();
+  }, [carregarVendas]);
 
   const handleSubmit = async (data) => {
     setFormLoading(true);

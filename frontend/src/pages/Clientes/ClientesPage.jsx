@@ -53,7 +53,13 @@ export default function ClientesPage() {
     }
   }, [page, rowsPerPage, search, statusFilter]);
 
-  useEffect(() => { carregarClientes(); }, [carregarClientes]);
+  useEffect(() => {
+    const load = async () => {
+      await carregarClientes();
+    };
+
+    void load();
+  }, [carregarClientes]);
 
   const handleSubmit = async (data) => {
     setFormLoading(true);

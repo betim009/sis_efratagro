@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
@@ -52,7 +53,11 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    loadUser();
+    const initializeSession = async () => {
+      await loadUser();
+    };
+
+    void initializeSession();
   }, [loadUser]);
 
   // ------------------------------------------------------------------

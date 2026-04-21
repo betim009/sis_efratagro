@@ -90,8 +90,21 @@ export default function FinanceiroPage() {
     }
   }, []);
 
-  useEffect(() => { carregarDuplicatas(); }, [carregarDuplicatas]);
-  useEffect(() => { carregarResumoEAlertas(); }, [carregarResumoEAlertas]);
+  useEffect(() => {
+    const load = async () => {
+      await carregarDuplicatas();
+    };
+
+    void load();
+  }, [carregarDuplicatas]);
+
+  useEffect(() => {
+    const load = async () => {
+      await carregarResumoEAlertas();
+    };
+
+    void load();
+  }, [carregarResumoEAlertas]);
 
   const handlePagamento = (duplicata) => {
     setPagDuplicata(duplicata);

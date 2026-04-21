@@ -1,6 +1,8 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useMediaQuery, useTheme } from "@mui/material";
 import MainLayout from "../components/layout/MainLayout";
+import MobileLayout from "../layouts/mobile/MobileLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import Loading from "../components/common/Loading";
 
@@ -20,15 +22,55 @@ const AuditoriaPage = lazy(() => import("../pages/Auditoria/AuditoriaPage"));
 const NotificacoesPage = lazy(() => import("../pages/Notificacoes/NotificacoesPage"));
 const AcessoNegadoPage = lazy(() => import("../pages/AcessoNegado/AcessoNegadoPage"));
 const NotFoundPage = lazy(() => import("../pages/NotFound/NotFoundPage"));
+const DashboardMobilePage = lazy(() => import("../mobile/pages/DashboardMobilePage"));
+const ClientesMobilePage = lazy(() => import("../mobile/pages/ClientesMobilePage"));
+const ProdutosMobilePage = lazy(() => import("../mobile/pages/ProdutosMobilePage"));
+const EstoqueMobilePage = lazy(() => import("../mobile/pages/EstoqueMobilePage"));
+const VendasMobilePage = lazy(() => import("../mobile/pages/VendasMobilePage"));
+const FinanceiroMobilePage = lazy(() => import("../mobile/pages/FinanceiroMobilePage"));
+const MenuMobilePage = lazy(() => import("../mobile/pages/MenuMobilePage"));
 
-const privateRoutes = [
-  { path: "dashboard", element: <DashboardPage />, permission: "dashboard.read" },
-  { path: "clientes", element: <ClientesPage />, permission: "clientes.read" },
+const adaptiveRoutes = [
+  {
+    path: "dashboard",
+    desktopElement: <DashboardPage />,
+    mobileElement: <DashboardMobilePage />,
+    permission: "dashboard.read",
+  },
+  {
+    path: "clientes",
+    desktopElement: <ClientesPage />,
+    mobileElement: <ClientesMobilePage />,
+    permission: "clientes.read",
+  },
+  {
+    path: "produtos",
+    desktopElement: <ProdutosPage />,
+    mobileElement: <ProdutosMobilePage />,
+    permission: "produtos.read",
+  },
+  {
+    path: "estoque",
+    desktopElement: <EstoquePage />,
+    mobileElement: <EstoqueMobilePage />,
+    permission: "estoque.read",
+  },
+  {
+    path: "vendas",
+    desktopElement: <VendasPage />,
+    mobileElement: <VendasMobilePage />,
+    permission: "vendas.read",
+  },
+  {
+    path: "financeiro",
+    desktopElement: <FinanceiroPage />,
+    mobileElement: <FinanceiroMobilePage />,
+    permission: "financeiro.read",
+  },
+];
+
+const desktopOnlyRoutes = [
   { path: "fornecedores", element: <FornecedoresPage />, permission: "fornecedores.read" },
-  { path: "produtos", element: <ProdutosPage />, permission: "produtos.read" },
-  { path: "estoque", element: <EstoquePage />, permission: "estoque.read" },
-  { path: "vendas", element: <VendasPage />, permission: "vendas.read" },
-  { path: "financeiro", element: <FinanceiroPage />, permission: "financeiro.read" },
   { path: "frota", element: <FrotaPage />, permission: "frota.read" },
   { path: "entregas", element: <EntregasPage />, permission: "entregas.read" },
   { path: "relatorios", element: <RelatoriosPage />, permission: "relatorios.read" },
@@ -38,23 +80,37 @@ const privateRoutes = [
 ];
 
 export default function AppRoutes() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const ActiveLayout = isMobile ? MobileLayout : MainLayout;
+
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
-        {/* Rotas públicas */}
         <Route path="/login" element={<LoginPage />} />
 
-      {/* Rotas privadas com layout */}
       <Route
         element={
           <ProtectedRoute>
-            <MainLayout />
+            <ActiveLayout />
           </ProtectedRoute>
         }
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
 
-        {privateRoutes.map(({ path, element, permission }) => (
+        {adaptiveRoutes.map(({ path, desktopElement, mobileElement, permission }) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <ProtectedRoute permission={permission}>
+                {isMobile ? mobileElement : desktopElement}
+              </ProtectedRoute>
+            }
+          />
+        ))}
+
+        {desktopOnlyRoutes.map(({ path, element, permission }) => (
           <Route
             key={path}
             path={path}
@@ -66,10 +122,22 @@ export default function AppRoutes() {
           />
         ))}
 
+        <Route
+          path="menu"
+          element={
+            isMobile ? (
+              <MenuMobilePage />
+            ) : (
+              <Navigate to="/dashboard" replace />
+            )
+          }
+        />
+
         <Route path="acesso-negado" element={<AcessoNegadoPage />} />
-        <Route path="*" element={<NotFoundPage />} />
       </Route>
-    </Routes>
+
+      <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </Suspense>
   );
 }

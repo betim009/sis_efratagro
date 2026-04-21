@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { Box, Typography } from "@mui/material";
 import { MdInbox } from "react-icons/md";
 
@@ -17,7 +18,7 @@ export default function EmptyState({
         gap: 1.5,
       }}
     >
-      <Icon size={56} color="#BDBDBD" />
+      {createElement(Icon, { size: 56, color: "#BDBDBD" })}
       <Typography variant="h6" color="text.secondary" sx={{ fontWeight: 500 }}>
         {title}
       </Typography>

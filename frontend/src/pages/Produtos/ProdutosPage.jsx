@@ -56,7 +56,13 @@ export default function ProdutosPage() {
     }
   }, [page, rowsPerPage, search, statusFilter, categoriaFilter]);
 
-  useEffect(() => { carregarProdutos(); }, [carregarProdutos]);
+  useEffect(() => {
+    const load = async () => {
+      await carregarProdutos();
+    };
+
+    void load();
+  }, [carregarProdutos]);
 
   const handleSubmit = async (data) => {
     setFormLoading(true);

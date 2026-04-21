@@ -28,23 +28,20 @@ export default function DashboardPage() {
   const [resumo, setResumo] = useState(null);
   const [financeiro, setFinanceiro] = useState(null);
   const [estoque, setEstoque] = useState(null);
-  const [alertas, setAlertas] = useState(null);
   const [periodo, setPeriodo] = useState("30d");
 
   const carregarDados = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [resResumo, resFin, resEst, resAlertas] = await Promise.allSettled([
+      const [resResumo, resFin, resEst] = await Promise.allSettled([
         dashboardService.getResumo(),
         dashboardService.getFinanceiro(),
         dashboardService.getEstoque(),
-        dashboardService.getAlertas(),
       ]);
       if (resResumo.status === "fulfilled") setResumo(resResumo.value.data);
       if (resFin.status === "fulfilled") setFinanceiro(resFin.value.data);
       if (resEst.status === "fulfilled") setEstoque(resEst.value.data);
-      if (resAlertas.status === "fulfilled") setAlertas(resAlertas.value.data);
     } catch (err) {
       setError(err.response?.data?.message || "Erro ao carregar o dashboard.");
     } finally {
@@ -52,7 +49,13 @@ export default function DashboardPage() {
     }
   }, []);
 
-  useEffect(() => { carregarDados(); }, [carregarDados]);
+  useEffect(() => {
+    const load = async () => {
+      await carregarDados();
+    };
+
+    void load();
+  }, [carregarDados]);
 
   if (loading) return <Loading message="Carregando dashboard..." />;
   if (error && !resumo) return <ErrorState message={error} onRetry={carregarDados} />;
