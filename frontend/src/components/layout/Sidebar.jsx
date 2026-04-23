@@ -35,6 +35,7 @@ const menuItems = [
   { text: "Produtos", icon: MdInventory, path: "/produtos", permission: "produtos.read" },
   { divider: true, label: "Operações" },
   { text: "Estoque", icon: MdWarehouse, path: "/estoque", permission: "estoque.read" },
+  { text: "Locais de Estoque", icon: MdWarehouse, path: "/estoque/locais", permission: "estoque.read" },
   { text: "Vendas", icon: MdPointOfSale, path: "/vendas", permission: "vendas.read" },
   { text: "Financeiro", icon: MdAttachMoney, path: "/financeiro", permission: "financeiro.read" },
   { divider: true, label: "Logística" },

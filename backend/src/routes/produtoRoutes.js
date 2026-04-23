@@ -45,6 +45,18 @@ router.get(
 );
 
 router.get(
+  "/:id/fornecedores",
+  permissionMiddleware("produtos.read"),
+  produtoController.getFornecedoresDoProduto
+);
+
+router.get(
+  "/:id/fornecedor-principal",
+  permissionMiddleware("produtos.read"),
+  produtoController.getFornecedorPrincipal
+);
+
+router.get(
   "/:id",
   permissionMiddleware("produtos.read"),
   produtoController.getProdutoById

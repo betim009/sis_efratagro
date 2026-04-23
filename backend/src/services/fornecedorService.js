@@ -2,7 +2,7 @@ const fornecedorModel = require("../models/fornecedorModel");
 const auditLogModel = require("../models/auditLogModel");
 const AppError = require("../utils/AppError");
 const {
-  validateUuid,
+  validateEntityIdentifier,
   parseFornecedorPayload,
   parseListFilters,
   mapFornecedorResponse
@@ -14,9 +14,9 @@ const getRequestMetadata = (request) => ({
 });
 
 const assertFornecedorExists = async (fornecedorId) => {
-  validateUuid(fornecedorId, "Fornecedor");
+  validateEntityIdentifier(fornecedorId, "Fornecedor");
 
-  const fornecedor = await fornecedorModel.findFornecedorById(fornecedorId);
+  const fornecedor = await fornecedorModel.findFornecedorByIdentifier(fornecedorId);
 
   if (!fornecedor) {
     throw new AppError("Fornecedor nao encontrado", 404);
@@ -89,9 +89,9 @@ const updateFornecedor = async ({
   const currentFornecedor = await assertFornecedorExists(fornecedorId);
   const parsedPayload = parseFornecedorPayload(payload);
 
-  await ensureUniqueDocument(parsedPayload.cnpjCpf, fornecedorId);
+  await ensureUniqueDocument(parsedPayload.cnpjCpf, currentFornecedor.id);
 
-  const fornecedor = await fornecedorModel.updateFornecedor(fornecedorId, parsedPayload);
+  const fornecedor = await fornecedorModel.updateFornecedor(currentFornecedor.id, parsedPayload);
   const metadata = getRequestMetadata(request);
 
   await auditLogModel.createAuditLog({
@@ -126,7 +126,7 @@ const inactivateFornecedor = async ({
     throw new AppError("Fornecedor ja esta inativo", 409);
   }
 
-  const fornecedor = await fornecedorModel.inactivateFornecedor(fornecedorId);
+  const fornecedor = await fornecedorModel.inactivateFornecedor(currentFornecedor.id);
   const metadata = getRequestMetadata(request);
 
   await auditLogModel.createAuditLog({
@@ -142,9 +142,36 @@ const inactivateFornecedor = async ({
   return mapFornecedorResponse(fornecedor);
 };
 
+const deleteFornecedor = async ({ fornecedorId, authenticatedUser, request }) => {
+  const currentFornecedor = await assertFornecedorExists(fornecedorId);
+  const hasHistory = await fornecedorModel.hasFornecedorHistorico(currentFornecedor.id);
+
+  if (hasHistory) {
+    throw new AppError("Nao e permitido excluir fornecedor com historico", 409);
+  }
+
+  const fornecedor = await fornecedorModel.deleteFornecedor(currentFornecedor.id);
+  const metadata = getRequestMetadata(request);
+
+  await auditLogModel.createAuditLog({
+    userId: authenticatedUser.id,
+    tableName: "fornecedores",
+    recordId: currentFornecedor.id,
+    action: "DELETE",
+    previousData: {
+      razao_social: currentFornecedor.razao_social,
+      cnpj_cpf: currentFornecedor.cpf_cnpj,
+      status: currentFornecedor.status
+    },
+    ...metadata
+  });
+
+  return fornecedor;
+};
+
 const getHistoricoCompras = async (fornecedorId) => {
   const fornecedor = await assertFornecedorExists(fornecedorId);
-  const historico = await fornecedorModel.getFornecedorHistoricoCompras(fornecedorId);
+  const historico = await fornecedorModel.getFornecedorHistoricoCompras(fornecedor.id);
 
   return {
     fornecedor: {
@@ -154,16 +181,29 @@ const getHistoricoCompras = async (fornecedorId) => {
       status: fornecedor.status
     },
     summary: {
-      total_produtos_vinculados: historico.summary.total_produtos_vinculados,
-      total_produtos_ativos: historico.summary.total_produtos_ativos,
-      ultimo_produto_atualizado_em:
-        historico.summary.ultimo_produto_atualizado_em,
-      modulo_compras_disponivel: false
+      total_compras: historico.summary.total_compras,
+      quantidade_total_comprada: historico.summary.quantidade_total_comprada,
+      valor_total_compras: historico.summary.valor_total_compras,
+      ultima_compra_em: historico.summary.ultima_compra_em,
+      pronto_para_financeiro: true
     },
-    historico_compras: [],
-    produtos_relacionados: historico.relatedProducts,
-    observacao:
-      "Estrutura preparada para historico de compras. O schema atual ainda nao possui tabelas de pedidos de compra/entradas por fornecedor."
+    historico_compras: historico.purchases,
+    produtos_relacionados: historico.relatedProducts
+  };
+};
+
+const getProdutosByFornecedor = async (fornecedorId) => {
+  const fornecedor = await assertFornecedorExists(fornecedorId);
+  const produtos = await fornecedorModel.getProdutosByFornecedor(fornecedor.id);
+
+  return {
+    fornecedor: {
+      id: fornecedor.id,
+      razao_social: fornecedor.razao_social,
+      cnpj_cpf: fornecedor.cpf_cnpj,
+      status: fornecedor.status
+    },
+    items: produtos
   };
 };
 
@@ -173,5 +213,7 @@ module.exports = {
   getFornecedorById,
   updateFornecedor,
   inactivateFornecedor,
-  getHistoricoCompras
+  deleteFornecedor,
+  getHistoricoCompras,
+  getProdutosByFornecedor
 };

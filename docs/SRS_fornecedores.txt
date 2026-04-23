@@ -1,0 +1,443 @@
+SRS_fornecedores
+
+========================================
+1. OBJETIVO DO MÓDULO
+========================================
+
+O módulo de fornecedores tem como objetivo gerenciar os parceiros responsáveis
+pelo fornecimento de produtos para a empresa, permitindo controle cadastral,
+vínculo com produtos, apoio ao processo de compra, integração com estoque e
+possível integração com o financeiro.
+
+Este módulo não deve ser tratado apenas como um cadastro simples, mas como uma
+parte estrutural do ERP, pois influencia diretamente os fluxos de compra,
+entrada de estoque, custo de produto e contas a pagar.
+
+
+========================================
+2. CADASTRO DE FORNECEDORES
+========================================
+
+O sistema deve permitir cadastrar, editar, consultar e inativar fornecedores.
+
+Cada fornecedor deve possuir, no mínimo, os seguintes campos:
+
+- razão social
+- nome fantasia
+- CNPJ ou CPF
+- inscrição estadual (quando aplicável)
+- telefone
+- e-mail
+- contato responsável
+- endereço
+- cidade
+- estado
+- observações
+- status (ativo/inativo)
+
+Regras:
+- não permitir cadastro duplicado com mesmo CNPJ
+- permitir CPF apenas quando o fornecedor for pessoa física
+- fornecedor inativo não deve ser selecionável em novas compras
+
+
+========================================
+3. STATUS DO FORNECEDOR
+========================================
+
+O fornecedor deve possuir controle de status.
+
+Status possíveis:
+- ativo
+- inativo
+- bloqueado (opcional, se adotado no projeto)
+
+Regras:
+- fornecedor ativo pode ser utilizado em compras
+- fornecedor inativo não pode ser utilizado em novas compras
+- fornecedor com pendências críticas pode ser bloqueado
+- fornecedor com histórico não pode ser excluído fisicamente do banco
+- preferencialmente utilizar inativação em vez de exclusão
+
+
+========================================
+4. RELAÇÃO ENTRE FORNECEDORES E PRODUTOS
+========================================
+
+O sistema deve permitir relacionar fornecedores aos produtos cadastrados.
+
+Regras:
+- um produto pode possuir 1 fornecedor principal
+- um produto pode possuir múltiplos fornecedores secundários
+- o fornecedor principal deve ser o padrão sugerido no momento da compra
+- deve ser possível alterar o fornecedor principal
+- deve ser possível consultar quais produtos cada fornecedor atende
+
+Regras adicionais:
+- um produto pode existir sem fornecedor no momento do cadastro inicial
+- porém, para uma compra, o fornecedor deve ser obrigatório
+- o sistema deve guardar o histórico da relação entre produto e fornecedor,
+  principalmente quando houver mudança de fornecedor principal
+
+
+========================================
+5. PROCESSO DE COMPRA
+========================================
+
+O módulo de fornecedores deve participar do processo de compra.
+
+Fluxo esperado:
+1. selecionar fornecedor
+2. selecionar produto já cadastrado
+3. informar quantidade
+4. informar custo unitário
+5. definir local de destino do estoque
+6. confirmar operação de compra/entrada
+
+Regras:
+- toda compra deve estar vinculada a um fornecedor
+- o fornecedor deve estar ativo
+- o produto deve estar previamente cadastrado
+- a compra deve registrar data, usuário responsável e valores
+- a compra pode servir de base para geração de entrada no estoque
+
+Observação:
+Cadastrar produto não é a mesma coisa que comprar produto.
+O cadastro de produto define o item no sistema.
+A compra representa a aquisição do item junto a um fornecedor.
+
+
+========================================
+6. INTEGRAÇÃO COM ESTOQUE
+========================================
+
+O módulo de fornecedores deve se integrar ao estoque nas entradas por compra.
+
+Regras:
+- entrada de estoque por compra deve possuir fornecedor obrigatório
+- entrada deve possuir produto, quantidade, custo e local de destino
+- o local de destino deve ser um galpão, armazém, depósito ou filial cadastrada
+- ajustes de estoque não exigem fornecedor
+- devolução para fornecedor deve registrar fornecedor de destino
+- devolução de cliente não deve usar fornecedor como origem
+
+Objetivo:
+Garantir rastreabilidade da origem do produto e consistência nas movimentações.
+
+
+========================================
+7. INTEGRAÇÃO COM FINANCEIRO
+========================================
+
+O módulo de fornecedores deve prever integração com o financeiro.
+
+Regras recomendadas:
+- compras podem gerar contas a pagar
+- cada conta a pagar deve manter vínculo com o fornecedor
+- deve ser possível consultar compras em aberto por fornecedor
+- deve ser possível consultar valores pagos por fornecedor
+- deve ser possível usar fornecedor como referência em relatórios de custo
+
+Mesmo que contas a pagar não estejam implementadas na primeira versão,
+o SRS deve prever essa possibilidade para evitar retrabalho futuro.
+
+
+========================================
+8. HISTÓRICO E RASTREABILIDADE
+========================================
+
+O sistema deve manter histórico relacionado aos fornecedores.
+
+O histórico pode incluir:
+- compras realizadas
+- produtos fornecidos
+- alterações cadastrais relevantes
+- mudança de status
+- devoluções realizadas
+- ocorrências ou observações operacionais
+
+Regras:
+- toda alteração importante deve registrar usuário, data e hora
+- histórico não deve ser apagado
+- fornecedor com movimentação histórica não deve ser excluído
+
+
+========================================
+9. CONSULTAS E RELATÓRIOS
+========================================
+
+O sistema deve permitir consultas e relatórios relacionados aos fornecedores.
+
+Consultas mínimas:
+- listar fornecedores ativos
+- listar fornecedores inativos
+- consultar fornecedor por nome, CNPJ, CPF ou contato
+- consultar produtos vinculados ao fornecedor
+- consultar histórico de compras por fornecedor
+
+Relatórios recomendados:
+- compras por fornecedor
+- fornecedores com maior volume de compra
+- custo de compra por fornecedor
+- produtos por fornecedor
+- fornecedores inativos
+- fornecedores sem movimentação no período
+
+
+========================================
+10. RESTRIÇÕES E VALIDAÇÕES
+========================================
+
+Não permitir:
+- compra com fornecedor inativo
+- exclusão física de fornecedor com histórico
+- cadastro duplicado com mesmo CNPJ
+- entrada de estoque por compra sem fornecedor
+- seleção de fornecedor inexistente em fluxo de compra
+
+Permitir:
+- inativação de fornecedor sem apagar histórico
+- alteração cadastral controlada
+- troca de fornecedor principal do produto
+
+
+========================================
+11. CRITÉRIOS DE ACEITE
+========================================
+
+- o sistema deve permitir cadastro completo de fornecedor
+- o sistema deve impedir uso de fornecedor inativo em compras
+- o sistema deve permitir vincular fornecedor a produto
+- o sistema deve permitir definir fornecedor principal
+- toda entrada por compra deve registrar fornecedor
+- deve ser possível consultar histórico de compras por fornecedor
+- fornecedor com histórico não deve poder ser excluído fisicamente
+- o módulo deve estar preparado para integração com contas a pagar
+
+
+========================================
+12. FORA DO ESCOPO INICIAL
+========================================
+
+Neste momento, podem ficar fora do escopo inicial:
+- portal externo do fornecedor
+- aprovação em múltiplos níveis
+- cotação entre vários fornecedores
+- SLA de entrega por fornecedor
+- avaliação por pontuação automática
+
+Esses itens podem ser adicionados em versões futuras, caso o projeto evolua.
+
+
+========================================
+13. CONCLUSÃO
+========================================
+
+O módulo de fornecedores deve ser tratado como um componente estratégico do ERP.
+Ele não se limita a armazenar dados cadastrais, mas participa diretamente do
+fluxo de compra, da entrada de estoque, da rastreabilidade da origem do produto
+e da futura integração com o financeiro.
+
+Sem esse detalhamento, o fornecedor vira apenas um campo cadastral.
+Com esse detalhamento, ele passa a ser uma entidade real de negócio.
+
+
+========================================
+ANEXO A. FLUXO COMPLETO ATUAL
+========================================
+
+1. Cadastros base
+
+Antes de operar o fluxo completo, o sistema deve possuir:
+
+- Produto cadastrado
+- Fornecedor cadastrado
+- Local de estoque cadastrado
+
+
+2. Produto
+
+O produto representa o item do catálogo e não deve armazenar quantidade.
+
+Regras:
+- pode existir sem fornecedor inicialmente
+- pode ter 1 fornecedor principal
+- pode ter fornecedores secundários
+
+
+3. Fornecedor
+
+Fornecedor é quem vende para a empresa.
+
+Ele participa de:
+- compra
+- estoque
+- financeiro
+- relatórios
+
+Regras:
+- deve estar ativo para ser usado
+- não pode ser excluído se tiver histórico
+- pode ser inativado
+
+
+4. Relação produto e fornecedor
+
+Um produto pode ter 1 fornecedor principal e vários secundários.
+
+Regras:
+- o fornecedor principal deve ser sugerido automaticamente na compra
+- o histórico deve ser mantido
+
+
+5. Compra
+
+Fluxo:
+1. selecionar fornecedor
+2. selecionar produto
+3. informar quantidade
+4. informar custo
+5. selecionar local de destino
+6. confirmar compra
+
+Regras:
+- fornecedor obrigatório
+- fornecedor deve estar ativo
+- produto deve existir
+- local deve existir
+
+
+6. Entrada de estoque gerada pela compra
+
+A compra gera uma movimentação de estoque do tipo ENTRADA.
+
+Dados registrados:
+- produto
+- fornecedor
+- quantidade
+- custo
+- local de destino
+- usuário
+- data/hora
+
+Resultado:
+- saldo aumenta no local de destino
+
+
+7. Estoque
+
+O estoque não é salvo diretamente no produto.
+
+Saldo = entradas - saídas +/- ajustes
+
+O saldo deve ser sempre controlado por local.
+
+
+8. Saída por venda
+
+Fluxo:
+1. selecionar produto
+2. selecionar local de origem
+3. informar quantidade
+4. confirmar venda
+
+Regras:
+- não pode vender sem saldo
+- local de origem obrigatório
+
+Resultado:
+- estoque diminui
+- movimentação registrada
+
+
+9. Transferência
+
+Fluxo:
+1. produto
+2. local de origem
+3. local de destino
+4. quantidade
+
+Regras:
+- origem e destino não podem ser iguais
+- deve haver saldo suficiente na origem
+
+Resultado:
+- sai de um local
+- entra em outro local
+
+
+10. Ajuste
+
+Usado para:
+- erro
+- perda
+- inventário
+
+Regras:
+- não precisa de fornecedor
+- precisa de motivo
+
+
+11. Devoluções
+
+Devolução para fornecedor:
+- registra fornecedor como destino
+- reduz saldo do local de origem
+- exige fornecedor ativo
+
+Devolução de cliente:
+- não usa fornecedor
+- aumenta saldo no local de destino
+- pode registrar cliente para rastreabilidade
+
+
+12. Rastreabilidade
+
+Toda movimentação deve salvar:
+- tipo
+- produto
+- fornecedor quando houver
+- origem
+- destino
+- usuário
+- data/hora
+- motivo
+
+
+13. Integração com financeiro
+
+Quando a empresa compra, a operação pode gerar contas a pagar.
+
+Ligação esperada:
+Fornecedor -> Compra -> Financeiro
+
+
+14. Consultas importantes
+
+O sistema deve permitir consultar:
+- compras por fornecedor
+- produtos por fornecedor
+- estoque por local
+- histórico completo
+- custo por fornecedor
+
+
+15. Resumo
+
+Produto = o que a empresa vende
+Fornecedor = quem vende para a empresa
+Compra = entrada de estoque
+Venda = saída de estoque
+Local = onde está armazenado
+Estoque = resultado das movimentações
+
+
+16. Conclusão operacional
+
+O fluxo atual fica:
+
+Produto -> Fornecedor -> Compra -> Estoque -> Venda -> Financeiro
+
+Esse fluxo garante multi-local, fornecedor integrado, custo real,
+rastreabilidade, base para financeiro e histórico completo.

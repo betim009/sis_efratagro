@@ -8,11 +8,17 @@ import {
   Button,
   Typography,
   Alert,
+  Divider,
   InputAdornment,
   IconButton,
 } from "@mui/material";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { useAuth } from "../../hooks/useAuth";
+
+const DEV_ADMIN_LOGIN = {
+  email: "admin@sisefratagro.local",
+  password: "Adm@12345",
+};
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
@@ -46,6 +52,12 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyAdminSuggestion = () => {
+    setEmail(DEV_ADMIN_LOGIN.email);
+    setPassword(DEV_ADMIN_LOGIN.password);
+    setError("");
   };
 
   return (
@@ -138,6 +150,41 @@ export default function LoginPage() {
             >
               {loading ? "Entrando..." : "Entrar"}
             </Button>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+                p: 1.5,
+                borderRadius: 2,
+                backgroundColor: "grey.50",
+                border: "1px dashed",
+                borderColor: "divider",
+              }}
+            >
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>
+                Acesso rápido de desenvolvimento
+              </Typography>
+              <Typography variant="body2">
+                <strong>E-mail:</strong> {DEV_ADMIN_LOGIN.email}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Senha:</strong> {DEV_ADMIN_LOGIN.password}
+              </Typography>
+              <Button
+                type="button"
+                variant="outlined"
+                size="small"
+                onClick={applyAdminSuggestion}
+                disabled={loading}
+                sx={{ alignSelf: "flex-start", mt: 0.5 }}
+              >
+                Usar sugestão de login
+              </Button>
+            </Box>
           </Box>
         </CardContent>
       </Card>

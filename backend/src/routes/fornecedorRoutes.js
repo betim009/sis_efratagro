@@ -38,10 +38,22 @@ router.patch(
   fornecedorController.inactivateFornecedor
 );
 
+router.delete(
+  "/:id",
+  permissionMiddleware("fornecedores.delete"),
+  fornecedorController.deleteFornecedor
+);
+
 router.get(
   "/:id/historico-compras",
   permissionMiddleware("fornecedores.read"),
   fornecedorController.getHistoricoCompras
+);
+
+router.get(
+  "/:id/produtos",
+  permissionMiddleware("fornecedores.read"),
+  fornecedorController.getProdutosByFornecedor
 );
 
 module.exports = router;

@@ -50,6 +50,24 @@ router.post(
   estoqueController.registrarTransferencia
 );
 
+router.post(
+  "/movimentacoes/ajuste",
+  permissionMiddleware("estoque.create"),
+  estoqueController.registrarAjuste
+);
+
+router.post(
+  "/movimentacoes/devolucao-fornecedor",
+  permissionMiddleware("estoque.create"),
+  estoqueController.registrarDevolucaoFornecedor
+);
+
+router.post(
+  "/movimentacoes/devolucao-cliente",
+  permissionMiddleware("estoque.create"),
+  estoqueController.registrarDevolucaoCliente
+);
+
 router.get(
   "/saldos",
   permissionMiddleware("estoque.read"),

@@ -65,6 +65,9 @@ export default function EstoqueMobilePage() {
         ENTRADA: estoqueService.registrarEntrada,
         SAIDA: estoqueService.registrarSaida,
         TRANSFERENCIA: estoqueService.registrarTransferencia,
+        AJUSTE: estoqueService.registrarAjuste,
+        DEVOLUCAO_FORNECEDOR: estoqueService.registrarDevolucaoFornecedor,
+        DEVOLUCAO_CLIENTE: estoqueService.registrarDevolucaoCliente,
       };
       await (handlers[data.tipo_movimentacao] || estoqueService.registrarEntrada)(data);
       setDialogOpen(false);

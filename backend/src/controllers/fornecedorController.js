@@ -81,6 +81,24 @@ const inactivateFornecedor = async (request, response, next) => {
   }
 };
 
+const deleteFornecedor = async (request, response, next) => {
+  try {
+    const fornecedor = await fornecedorService.deleteFornecedor({
+      fornecedorId: request.params.id,
+      authenticatedUser: request.user,
+      request
+    });
+
+    return response.status(200).json({
+      status: "success",
+      message: "Fornecedor excluido com sucesso",
+      data: fornecedor
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const getHistoricoCompras = async (request, response, next) => {
   try {
     const historico = await fornecedorService.getHistoricoCompras(request.params.id);
@@ -94,11 +112,26 @@ const getHistoricoCompras = async (request, response, next) => {
   }
 };
 
+const getProdutosByFornecedor = async (request, response, next) => {
+  try {
+    const result = await fornecedorService.getProdutosByFornecedor(request.params.id);
+
+    return response.status(200).json({
+      status: "success",
+      data: result
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   createFornecedor,
   listFornecedores,
   getFornecedorById,
   updateFornecedor,
   inactivateFornecedor,
-  getHistoricoCompras
+  deleteFornecedor,
+  getHistoricoCompras,
+  getProdutosByFornecedor
 };

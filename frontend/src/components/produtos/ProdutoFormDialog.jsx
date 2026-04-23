@@ -165,19 +165,23 @@ export default function ProdutoFormDialog({ open, onClose, onSubmit, produto, lo
       return;
     }
 
-    setCodigo(produto?.codigo || "");
-    setNome(produto?.nome || "");
-    setDescricao(produto?.descricao || "");
-    setUnidadeMedida(produto?.unidade_medida || "");
-    setCategoria(produto?.categoria || "");
-    setPrecoCusto(produto?.preco_custo || 0);
-    setPrecoVenda(produto?.preco_venda || 0);
-    setPeso(produto?.peso || 0);
-    setCodigoBarras(produto?.codigo_barras || "");
-    setReferenciaInterna(produto?.referencia_interna || "");
-    setEstoqueMinimo(produto?.estoque_minimo || 0);
-    setPontoReposicao(produto?.ponto_reposicao || 0);
-    setPermiteVendaSemEstoque(produto?.permite_venda_sem_estoque || false);
+    const timer = setTimeout(() => {
+      setCodigo(produto?.codigo || "");
+      setNome(produto?.nome || "");
+      setDescricao(produto?.descricao || "");
+      setUnidadeMedida(produto?.unidade_medida || "");
+      setCategoria(produto?.categoria || "");
+      setPrecoCusto(produto?.preco_custo || 0);
+      setPrecoVenda(produto?.preco_venda || 0);
+      setPeso(produto?.peso || 0);
+      setCodigoBarras(produto?.codigo_barras || "");
+      setReferenciaInterna(produto?.referencia_interna || "");
+      setEstoqueMinimo(produto?.estoque_minimo || 0);
+      setPontoReposicao(produto?.ponto_reposicao || 0);
+      setPermiteVendaSemEstoque(produto?.permite_venda_sem_estoque || false);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [open, produto]);
 
   useEffect(() => {

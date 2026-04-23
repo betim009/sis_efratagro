@@ -102,6 +102,33 @@ const findClienteById = async (clienteId) => {
   return result.rows[0] || null;
 };
 
+const findClienteByPublicId = async (publicId) => {
+  const result = await query(
+    `
+      ${customerSelect}
+      WHERE public_id = $1
+      LIMIT 1
+    `,
+    [publicId]
+  );
+
+  return result.rows[0] || null;
+};
+
+const findClienteByIdentifier = async (identifier) => {
+  if (identifier === undefined || identifier === null || identifier === "") {
+    return null;
+  }
+
+  const raw = String(identifier).trim();
+
+  if (/^\d+$/.test(raw)) {
+    return findClienteByPublicId(Number(raw));
+  }
+
+  return findClienteById(raw);
+};
+
 const findClienteByDocument = async (cpfCnpj, excludeId = null) => {
   const result = await query(
     `
@@ -375,6 +402,8 @@ const getClienteDebitosEmAberto = async (clienteId) => {
 module.exports = {
   createCliente,
   findClienteById,
+  findClienteByPublicId,
+  findClienteByIdentifier,
   findClienteByDocument,
   listClientes,
   countClientes,
