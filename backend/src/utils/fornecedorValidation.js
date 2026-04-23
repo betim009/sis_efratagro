@@ -2,6 +2,7 @@ const AppError = require("./AppError");
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SIMPLE_ID_PATTERN = /^\d+$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const VALID_STATUS = ["ATIVO", "INATIVO"];
 const VALID_TIPO_PESSOA = ["PF", "PJ"];
@@ -21,6 +22,20 @@ const validateUuid = (value, fieldName = "id") => {
   if (!UUID_PATTERN.test(String(value || ""))) {
     throw new AppError(`${fieldName} invalido`, 400);
   }
+};
+
+const validateEntityIdentifier = (value, fieldName = "id") => {
+  const normalized = String(value || "").trim();
+
+  if (!normalized) {
+    throw new AppError(`${fieldName} invalido`, 400);
+  }
+
+  if (SIMPLE_ID_PATTERN.test(normalized) || UUID_PATTERN.test(normalized)) {
+    return normalized;
+  }
+
+  throw new AppError(`${fieldName} invalido`, 400);
 };
 
 const validateEmail = (email) => {
@@ -204,6 +219,7 @@ const parseListFilters = (query) => {
 
 const mapFornecedorResponse = (fornecedor) => ({
   id: fornecedor.id,
+  public_id: fornecedor.public_id,
   tipo_pessoa: fornecedor.tipo_pessoa,
   razao_social: fornecedor.razao_social,
   nome_fantasia: fornecedor.nome_fantasia,
@@ -229,6 +245,7 @@ const mapFornecedorResponse = (fornecedor) => ({
 
 module.exports = {
   validateUuid,
+  validateEntityIdentifier,
   parseFornecedorPayload,
   parseListFilters,
   mapFornecedorResponse

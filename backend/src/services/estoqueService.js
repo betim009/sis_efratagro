@@ -3,6 +3,8 @@ const estoqueModel = require("../models/estoqueModel");
 const localEstoqueModel = require("../models/localEstoqueModel");
 const movimentacaoEstoqueModel = require("../models/movimentacaoEstoqueModel");
 const produtoModel = require("../models/produtoModel");
+const fornecedorModel = require("../models/fornecedorModel");
+const clienteModel = require("../models/clienteModel");
 const auditLogModel = require("../models/auditLogModel");
 const AppError = require("../utils/AppError");
 const {
@@ -55,6 +57,38 @@ const assertLocalAtivo = async (localId, fieldName) => {
   }
 
   return local;
+};
+
+const assertFornecedorAtivo = async (fornecedorId) => {
+  validateEntityIdentifier(fornecedorId, "fornecedor_id");
+
+  const fornecedor = await fornecedorModel.findFornecedorByIdentifier(fornecedorId);
+
+  if (!fornecedor) {
+    throw new AppError("Fornecedor nao encontrado", 404);
+  }
+
+  if (fornecedor.status !== "ATIVO") {
+    throw new AppError("Nao e permitido registrar compra com fornecedor inativo", 409);
+  }
+
+  return fornecedor;
+};
+
+const assertClienteExists = async (clienteId) => {
+  if (!clienteId) {
+    return null;
+  }
+
+  validateEntityIdentifier(clienteId, "cliente_id");
+
+  const cliente = await clienteModel.findClienteByIdentifier(clienteId);
+
+  if (!cliente) {
+    throw new AppError("Cliente nao encontrado", 404);
+  }
+
+  return cliente;
 };
 
 const ensureUniqueCodigoLocal = async (codigo, excludeId = null) => {
@@ -235,57 +269,83 @@ const inativarLocal = async ({ localId, authenticatedUser, request }) => {
 
 const registrarEntrada = async ({ payload, authenticatedUser, request }) => {
   const parsedPayload = parseMovimentacaoPayload(payload, "ENTRADA");
-  const [produto, local] = await Promise.all([
+  const [produto, fornecedor, local] = await Promise.all([
     assertProdutoAtivo(parsedPayload.produtoId),
+    assertFornecedorAtivo(parsedPayload.fornecedorId),
     assertLocalAtivo(parsedPayload.localDestinoId, "local_destino_id")
   ]);
 
-  const movimentacao = await movimentacaoEstoqueModel.createMovimentacao({
-    produtoId: parsedPayload.produtoId,
-    localOrigemId: null,
-    localDestinoId: parsedPayload.localDestinoId,
-    usuarioId: authenticatedUser.id,
-    vendaId: parsedPayload.vendaId,
-    tipoMovimentacao: "ENTRADA",
-    quantidade: parsedPayload.quantidade,
-    motivo: parsedPayload.motivo,
-    observacoes: parsedPayload.observacoes
-  });
+  const valorTotal = Number((parsedPayload.quantidade * parsedPayload.custoUnitario).toFixed(2));
+  const client = await getClient();
 
-  const saldo = await creditSaldo({
-    produtoId: parsedPayload.produtoId,
-    localId: parsedPayload.localDestinoId,
-    quantidade: parsedPayload.quantidade,
-    client: null
-  });
+  try {
+    await client.query("BEGIN");
 
-  await registrarAuditoria({
-    authenticatedUser,
-    recordId: movimentacao.id,
-    newData: {
-      tipo_movimentacao: "ENTRADA",
-      produto_id: produto.id,
-      produto_codigo: produto.codigo,
-      local_destino_id: local.id,
-      local_destino_codigo: local.codigo,
+    const saldo = await creditSaldo({
+      produtoId: produto.id,
+      localId: local.id,
       quantidade: parsedPayload.quantidade,
-      saldo_resultante: Number(saldo.quantidade)
-    },
-    descricao: "Entrada de estoque registrada",
-    request
-  });
+      client
+    });
 
-  return {
-    movimentacao,
-    saldo
-  };
+    const movimentacao = await movimentacaoEstoqueModel.createMovimentacao(
+      {
+        produtoId: produto.id,
+        fornecedorId: fornecedor.id,
+        localOrigemId: null,
+        localDestinoId: local.id,
+        usuarioId: authenticatedUser.id,
+        vendaId: parsedPayload.vendaId,
+        tipoMovimentacao: "ENTRADA",
+        quantidade: parsedPayload.quantidade,
+        custoUnitario: parsedPayload.custoUnitario,
+        valorTotal,
+        motivo: parsedPayload.motivo,
+        observacoes: parsedPayload.observacoes
+      },
+      client
+    );
+
+    await client.query("COMMIT");
+
+    await registrarAuditoria({
+      authenticatedUser,
+      recordId: movimentacao.id,
+      newData: {
+        tipo_movimentacao: "ENTRADA",
+        produto_id: produto.id,
+        produto_codigo: produto.codigo,
+        fornecedor_id: fornecedor.id,
+        fornecedor_razao_social: fornecedor.razao_social,
+        local_destino_id: local.id,
+        local_destino_codigo: local.codigo,
+        quantidade: parsedPayload.quantidade,
+        custo_unitario: parsedPayload.custoUnitario,
+        valor_total: valorTotal,
+        saldo_resultante: Number(saldo.quantidade)
+      },
+      descricao: "Entrada de estoque por compra registrada",
+      request
+    });
+
+    return {
+      movimentacao,
+      saldo
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 const registrarSaida = async ({ payload, authenticatedUser, request }) => {
   const parsedPayload = parseMovimentacaoPayload(payload, "SAIDA");
-  const [produto, local] = await Promise.all([
+  const [produto, local, cliente] = await Promise.all([
     assertProdutoAtivo(parsedPayload.produtoId),
-    assertLocalAtivo(parsedPayload.localOrigemId, "local_origem_id")
+    assertLocalAtivo(parsedPayload.localOrigemId, "local_origem_id"),
+    assertClienteExists(parsedPayload.clienteId)
   ]);
 
   const client = await getClient();
@@ -294,18 +354,20 @@ const registrarSaida = async ({ payload, authenticatedUser, request }) => {
     await client.query("BEGIN");
 
     const saldo = await debitSaldo({
-      produtoId: parsedPayload.produtoId,
-      localId: parsedPayload.localOrigemId,
+      produtoId: produto.id,
+      localId: local.id,
       quantidade: parsedPayload.quantidade,
       client
     });
 
     const movimentacao = await movimentacaoEstoqueModel.createMovimentacao(
       {
-        produtoId: parsedPayload.produtoId,
-        localOrigemId: parsedPayload.localOrigemId,
+        produtoId: produto.id,
+        fornecedorId: null,
+        localOrigemId: local.id,
         localDestinoId: null,
         usuarioId: authenticatedUser.id,
+        clienteId: cliente ? cliente.id : null,
         vendaId: parsedPayload.vendaId,
         tipoMovimentacao: "SAIDA",
         quantidade: parsedPayload.quantidade,
@@ -329,6 +391,8 @@ const registrarSaida = async ({ payload, authenticatedUser, request }) => {
         produto_codigo: produto.codigo,
         local_origem_id: local.id,
         local_origem_codigo: local.codigo,
+        cliente_id: cliente ? cliente.id : null,
+        cliente_nome: cliente ? cliente.nome_razao_social : null,
         quantidade: parsedPayload.quantidade,
         saldo_resultante: Number(saldo.quantidade)
       },
@@ -362,25 +426,27 @@ const registrarTransferencia = async ({ payload, authenticatedUser, request }) =
     await client.query("BEGIN");
 
     const saldoOrigem = await debitSaldo({
-      produtoId: parsedPayload.produtoId,
-      localId: parsedPayload.localOrigemId,
+      produtoId: produto.id,
+      localId: localOrigem.id,
       quantidade: parsedPayload.quantidade,
       client
     });
 
     const saldoDestino = await creditSaldo({
-      produtoId: parsedPayload.produtoId,
-      localId: parsedPayload.localDestinoId,
+      produtoId: produto.id,
+      localId: localDestino.id,
       quantidade: parsedPayload.quantidade,
       client
     });
 
     const movimentacao = await movimentacaoEstoqueModel.createMovimentacao(
       {
-        produtoId: parsedPayload.produtoId,
-        localOrigemId: parsedPayload.localOrigemId,
-        localDestinoId: parsedPayload.localDestinoId,
+        produtoId: produto.id,
+        fornecedorId: null,
+        localOrigemId: localOrigem.id,
+        localDestinoId: localDestino.id,
         usuarioId: authenticatedUser.id,
+        clienteId: null,
         vendaId: parsedPayload.vendaId,
         tipoMovimentacao: "TRANSFERENCIA",
         quantidade: parsedPayload.quantidade,
@@ -419,6 +485,88 @@ const registrarTransferencia = async ({ payload, authenticatedUser, request }) =
       movimentacao,
       saldo_origem: saldoOrigem,
       saldo_destino: saldoDestino
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const registrarAjuste = async ({ payload, authenticatedUser, request }) => {
+  const parsedPayload = parseMovimentacaoPayload(payload, "AJUSTE");
+  const isDebito = Boolean(parsedPayload.localOrigemId);
+
+  const produto = await assertProdutoAtivo(parsedPayload.produtoId);
+  const local = await assertLocalAtivo(
+    isDebito ? parsedPayload.localOrigemId : parsedPayload.localDestinoId,
+    isDebito ? "local_origem_id" : "local_destino_id"
+  );
+
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const saldo = isDebito
+      ? await debitSaldo({
+          produtoId: produto.id,
+          localId: local.id,
+          quantidade: parsedPayload.quantidade,
+          client
+        })
+      : await creditSaldo({
+          produtoId: produto.id,
+          localId: local.id,
+          quantidade: parsedPayload.quantidade,
+          client
+        });
+
+    const movimentacao = await movimentacaoEstoqueModel.createMovimentacao(
+      {
+        produtoId: produto.id,
+        fornecedorId: null,
+        localOrigemId: isDebito ? local.id : null,
+        localDestinoId: isDebito ? null : local.id,
+        usuarioId: authenticatedUser.id,
+        clienteId: null,
+        vendaId: null,
+        tipoMovimentacao: "AJUSTE",
+        quantidade: parsedPayload.quantidade,
+        motivo: parsedPayload.motivo,
+        observacoes: parsedPayload.observacoes
+      },
+      client
+    );
+
+    await client.query("COMMIT");
+
+    await registrarAuditoria({
+      authenticatedUser,
+      recordId: movimentacao.id,
+      previousData: {
+        local_id: local.id,
+        operacao: isDebito ? "DEBITO" : "CREDITO"
+      },
+      newData: {
+        tipo_movimentacao: "AJUSTE",
+        produto_id: produto.id,
+        produto_codigo: produto.codigo,
+        local_id: local.id,
+        local_codigo: local.codigo,
+        quantidade: parsedPayload.quantidade,
+        motivo: parsedPayload.motivo,
+        usuario_id: authenticatedUser.id,
+        saldo_resultante: Number(saldo.quantidade)
+      },
+      descricao: "Ajuste de estoque registrado",
+      request
+    });
+
+    return {
+      movimentacao,
+      saldo
     };
   } catch (error) {
     await client.query("ROLLBACK");
@@ -508,6 +656,7 @@ module.exports = {
   registrarEntrada,
   registrarSaida,
   registrarTransferencia,
+  registrarAjuste,
   listarSaldos,
   buscarSaldoPorProduto,
   buscarSaldoPorProdutoELocal,

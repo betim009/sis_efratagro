@@ -6,7 +6,8 @@ const SIMPLE_ID_PATTERN = /^\d+$/;
 
 const VALID_STATUS_LOCAL = ["ATIVO", "INATIVO"];
 const VALID_TIPOS_LOCAL = ["DEPOSITO", "FILIAL", "PRATELEIRA", "TRANSITO"];
-const VALID_TIPOS_MOVIMENTACAO = ["ENTRADA", "SAIDA", "TRANSFERENCIA"];
+const VALID_TIPOS_MOVIMENTACAO = ["ENTRADA", "SAIDA", "TRANSFERENCIA", "AJUSTE"];
+const VALID_MOTIVOS_AJUSTE = ["CORRECAO", "CORRECAO_ERRO", "ERRO", "PERDA", "INVENTARIO"];
 
 const sanitizeString = (value) => {
   if (value === undefined || value === null) {
@@ -92,12 +93,15 @@ const parseLocalPayload = (payload) => {
 const parseMovimentacaoPayload = (payload, tipoEsperado) => {
   const tipoMovimentacao = sanitizeString(payload.tipo_movimentacao) || tipoEsperado;
   const produtoId = sanitizeString(payload.produto_id);
+  const fornecedorId = sanitizeString(payload.fornecedor_id);
+  const clienteId = sanitizeString(payload.cliente_id);
   const localOrigemId = sanitizeString(payload.local_origem_id);
   const localDestinoId = sanitizeString(payload.local_destino_id);
   const motivo = sanitizeString(payload.motivo);
-  const observacoes = sanitizeString(payload.observacoes);
+  const observacoes = sanitizeString(payload.observacoes || payload.observacao);
   const vendaId = sanitizeString(payload.venda_id);
   const quantidade = sanitizeNumber(payload.quantidade, "Quantidade");
+  const custoUnitario = sanitizeNumber(payload.custo_unitario, "custo_unitario");
 
   if (!VALID_TIPOS_MOVIMENTACAO.includes(tipoMovimentacao)) {
     throw new AppError(
@@ -116,6 +120,14 @@ const parseMovimentacaoPayload = (payload, tipoEsperado) => {
     validateEntityIdentifier(vendaId, "venda_id");
   }
 
+  if (fornecedorId) {
+    validateEntityIdentifier(fornecedorId, "fornecedor_id");
+  }
+
+  if (clienteId) {
+    validateEntityIdentifier(clienteId, "cliente_id");
+  }
+
   if (quantidade === null || quantidade <= 0) {
     throw new AppError("quantidade deve ser maior que zero", 400);
   }
@@ -125,8 +137,16 @@ const parseMovimentacaoPayload = (payload, tipoEsperado) => {
   }
 
   if (tipoEsperado === "ENTRADA") {
+    if (!fornecedorId) {
+      throw new AppError("fornecedor_id obrigatorio para entrada por compra", 400);
+    }
+
     if (!localDestinoId) {
       throw new AppError("local_destino_id obrigatorio para entrada", 400);
+    }
+
+    if (custoUnitario === null || custoUnitario <= 0) {
+      throw new AppError("custo_unitario obrigatorio e deve ser maior que zero", 400);
     }
 
     validateEntityIdentifier(localDestinoId, "local_destino_id");
@@ -157,12 +177,40 @@ const parseMovimentacaoPayload = (payload, tipoEsperado) => {
     }
   }
 
+  if (tipoEsperado === "AJUSTE") {
+    if (!VALID_MOTIVOS_AJUSTE.includes(motivo)) {
+      throw new AppError(
+        `Motivo de ajuste invalido. Use: ${VALID_MOTIVOS_AJUSTE.join(", ")}`,
+        400
+      );
+    }
+
+    if (!localOrigemId && !localDestinoId) {
+      throw new AppError("Ajuste exige local_origem_id para debito ou local_destino_id para credito", 400);
+    }
+
+    if (localOrigemId && localDestinoId) {
+      throw new AppError("Ajuste deve informar apenas origem ou destino", 400);
+    }
+
+    if (localOrigemId) {
+      validateEntityIdentifier(localOrigemId, "local_origem_id");
+    }
+
+    if (localDestinoId) {
+      validateEntityIdentifier(localDestinoId, "local_destino_id");
+    }
+  }
+
   return {
     tipoMovimentacao,
     produtoId,
+    fornecedorId,
+    clienteId,
     localOrigemId,
     localDestinoId,
     quantidade,
+    custoUnitario,
     motivo,
     observacoes,
     vendaId
@@ -201,6 +249,7 @@ module.exports = {
   VALID_STATUS_LOCAL,
   VALID_TIPOS_LOCAL,
   VALID_TIPOS_MOVIMENTACAO,
+  VALID_MOTIVOS_AJUSTE,
   validateUuid,
   validateEntityIdentifier,
   parseLocalPayload,

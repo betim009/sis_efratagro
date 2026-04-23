@@ -122,6 +122,24 @@ const registrarTransferencia = async (request, response, next) => {
   }
 };
 
+const registrarAjuste = async (request, response, next) => {
+  try {
+    const result = await estoqueService.registrarAjuste({
+      payload: request.body,
+      authenticatedUser: request.user,
+      request
+    });
+
+    return response.status(201).json({
+      status: "success",
+      message: "Ajuste de estoque registrado com sucesso",
+      data: result
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const listarSaldos = async (request, response, next) => {
   try {
     const result = await estoqueService.listarSaldos(request.query);
@@ -198,6 +216,7 @@ module.exports = {
   registrarEntrada,
   registrarSaida,
   registrarTransferencia,
+  registrarAjuste,
   listarSaldos,
   buscarSaldoPorProduto,
   buscarSaldoPorProdutoELocal,

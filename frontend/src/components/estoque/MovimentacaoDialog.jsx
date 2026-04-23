@@ -46,7 +46,11 @@ export default function MovimentacaoDialog({
       return;
     }
 
-    setTipoMovimentacao(tipo);
+    const timer = setTimeout(() => {
+      setTipoMovimentacao(tipo);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [open, tipo]);
 
   useEffect(() => {

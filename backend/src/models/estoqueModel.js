@@ -193,9 +193,14 @@ const listMovimentacoes = async ({
         p.public_id AS produto_public_id,
         p.codigo AS produto_codigo,
         p.nome AS produto_nome,
+        m.fornecedor_id,
+        f.razao_social AS fornecedor_razao_social,
+        f.cpf_cnpj AS fornecedor_cpf_cnpj,
         m.usuario_id,
         u.public_id AS usuario_public_id,
         u.nome AS usuario_nome,
+        m.cliente_id,
+        c.nome_razao_social AS cliente_nome,
         m.local_origem_id,
         lo.public_id AS local_origem_public_id,
         lo.nome AS local_origem_nome,
@@ -204,6 +209,8 @@ const listMovimentacoes = async ({
         ld.nome AS local_destino_nome,
         m.tipo_movimentacao,
         m.quantidade,
+        m.custo_unitario,
+        m.valor_total,
         m.motivo,
         m.observacoes,
         m.venda_id,
@@ -212,9 +219,11 @@ const listMovimentacoes = async ({
       FROM movimentacoes_estoque m
       INNER JOIN produtos p ON p.id = m.produto_id
       INNER JOIN usuarios u ON u.id = m.usuario_id
+      LEFT JOIN fornecedores f ON f.id = m.fornecedor_id
+      LEFT JOIN clientes c ON c.id = m.cliente_id
       LEFT JOIN locais_estoque lo ON lo.id = m.local_origem_id
       LEFT JOIN locais_estoque ld ON ld.id = m.local_destino_id
-      WHERE ($1::varchar IS NULL OR p.nome ILIKE '%' || $1 || '%' OR p.codigo ILIKE '%' || $1 || '%' OR m.motivo ILIKE '%' || $1 || '%' OR COALESCE(lo.nome, '') ILIKE '%' || $1 || '%' OR COALESCE(ld.nome, '') ILIKE '%' || $1 || '%')
+      WHERE ($1::varchar IS NULL OR p.nome ILIKE '%' || $1 || '%' OR p.codigo ILIKE '%' || $1 || '%' OR m.motivo ILIKE '%' || $1 || '%' OR COALESCE(f.razao_social, '') ILIKE '%' || $1 || '%' OR COALESCE(c.nome_razao_social, '') ILIKE '%' || $1 || '%' OR COALESCE(lo.nome, '') ILIKE '%' || $1 || '%' OR COALESCE(ld.nome, '') ILIKE '%' || $1 || '%')
         AND ($2::uuid IS NULL OR m.produto_id = $2)
         AND ($3::uuid IS NULL OR m.local_origem_id = $3 OR m.local_destino_id = $3)
         AND ($4::varchar IS NULL OR m.tipo_movimentacao = $4)
@@ -233,9 +242,11 @@ const countMovimentacoes = async ({ search, produtoId, localId, tipoMovimentacao
       SELECT COUNT(*)::integer AS total
       FROM movimentacoes_estoque m
       INNER JOIN produtos p ON p.id = m.produto_id
+      LEFT JOIN fornecedores f ON f.id = m.fornecedor_id
+      LEFT JOIN clientes c ON c.id = m.cliente_id
       LEFT JOIN locais_estoque lo ON lo.id = m.local_origem_id
       LEFT JOIN locais_estoque ld ON ld.id = m.local_destino_id
-      WHERE ($1::varchar IS NULL OR p.nome ILIKE '%' || $1 || '%' OR p.codigo ILIKE '%' || $1 || '%' OR m.motivo ILIKE '%' || $1 || '%' OR COALESCE(lo.nome, '') ILIKE '%' || $1 || '%' OR COALESCE(ld.nome, '') ILIKE '%' || $1 || '%')
+      WHERE ($1::varchar IS NULL OR p.nome ILIKE '%' || $1 || '%' OR p.codigo ILIKE '%' || $1 || '%' OR m.motivo ILIKE '%' || $1 || '%' OR COALESCE(f.razao_social, '') ILIKE '%' || $1 || '%' OR COALESCE(c.nome_razao_social, '') ILIKE '%' || $1 || '%' OR COALESCE(lo.nome, '') ILIKE '%' || $1 || '%' OR COALESCE(ld.nome, '') ILIKE '%' || $1 || '%')
         AND ($2::uuid IS NULL OR m.produto_id = $2)
         AND ($3::uuid IS NULL OR m.local_origem_id = $3 OR m.local_destino_id = $3)
         AND ($4::varchar IS NULL OR m.tipo_movimentacao = $4)

@@ -12,6 +12,7 @@ const ClientesPage = lazy(() => import("../pages/Clientes/ClientesPage"));
 const FornecedoresPage = lazy(() => import("../pages/Fornecedores/FornecedoresPage"));
 const ProdutosPage = lazy(() => import("../pages/Produtos/ProdutosPage"));
 const EstoquePage = lazy(() => import("../pages/Estoque/EstoquePage"));
+const LocaisEstoquePage = lazy(() => import("../pages/Estoque/LocaisEstoquePage"));
 const VendasPage = lazy(() => import("../pages/Vendas/VendasPage"));
 const FinanceiroPage = lazy(() => import("../pages/Financeiro/FinanceiroPage"));
 const FrotaPage = lazy(() => import("../pages/Frota/FrotaPage"));
@@ -71,6 +72,7 @@ const adaptiveRoutes = [
 
 const desktopOnlyRoutes = [
   { path: "fornecedores", element: <FornecedoresPage />, permission: "fornecedores.read" },
+  { path: "estoque/locais", element: <LocaisEstoquePage />, permission: "estoque.read" },
   { path: "frota", element: <FrotaPage />, permission: "frota.read" },
   { path: "entregas", element: <EntregasPage />, permission: "entregas.read" },
   { path: "relatorios", element: <RelatoriosPage />, permission: "relatorios.read" },

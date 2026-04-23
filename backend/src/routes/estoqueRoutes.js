@@ -50,6 +50,12 @@ router.post(
   estoqueController.registrarTransferencia
 );
 
+router.post(
+  "/movimentacoes/ajuste",
+  permissionMiddleware("estoque.create"),
+  estoqueController.registrarAjuste
+);
+
 router.get(
   "/saldos",
   permissionMiddleware("estoque.read"),
