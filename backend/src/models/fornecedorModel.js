@@ -319,11 +319,17 @@ const getFornecedorHistoricoCompras = async (fornecedorId) => {
       SELECT
         COUNT(*)::integer AS total_compras,
         COALESCE(SUM(valor_total), 0)::numeric AS valor_total_compras,
-        COALESCE(SUM(quantidade), 0)::numeric AS quantidade_total_comprada,
-        MAX(data_movimentacao) AS ultima_compra_em
-      FROM movimentacoes_estoque
+        (
+          SELECT COALESCE(SUM(ic.quantidade), 0)::numeric
+          FROM itens_compra ic
+          INNER JOIN compras c2 ON c2.id = ic.compra_id
+          WHERE c2.fornecedor_id = $1
+            AND c2.status <> 'CANCELADA'
+        ) AS quantidade_total_comprada,
+        MAX(data_compra) AS ultima_compra_em
+      FROM compras
       WHERE fornecedor_id = $1
-        AND tipo_movimentacao = 'ENTRADA'
+        AND status <> 'CANCELADA'
     `,
     [fornecedorId]
   );
@@ -333,6 +339,9 @@ const getFornecedorHistoricoCompras = async (fornecedorId) => {
       SELECT
         m.id,
         m.public_id,
+        c.id AS compra_id,
+        c.public_id AS compra_public_id,
+        c.numero AS compra_numero,
         m.produto_id,
         p.public_id AS produto_public_id,
         p.codigo AS produto_codigo,
@@ -349,6 +358,8 @@ const getFornecedorHistoricoCompras = async (fornecedorId) => {
         u.nome AS usuario_nome,
         m.data_movimentacao
       FROM movimentacoes_estoque m
+      LEFT JOIN itens_compra ic ON ic.movimentacao_estoque_id = m.id
+      LEFT JOIN compras c ON c.id = ic.compra_id
       INNER JOIN produtos p ON p.id = m.produto_id
       INNER JOIN locais_estoque l ON l.id = m.local_destino_id
       INNER JOIN usuarios u ON u.id = m.usuario_id
@@ -376,9 +387,12 @@ const getFornecedorHistoricoCompras = async (fornecedorId) => {
       FROM produtos p
       LEFT JOIN produtos_fornecedores pf ON pf.produto_id = p.id
       LEFT JOIN movimentacoes_estoque m ON m.produto_id = p.id
+      LEFT JOIN itens_compra ic ON ic.produto_id = p.id
+      LEFT JOIN compras c ON c.id = ic.compra_id
       WHERE p.fornecedor_padrao_id = $1
          OR pf.fornecedor_id = $1
          OR m.fornecedor_id = $1
+         OR c.fornecedor_id = $1
       ORDER BY nome ASC
       LIMIT 100
     `,
@@ -413,8 +427,13 @@ const getProdutosByFornecedor = async (fornecedorId) => {
       LEFT JOIN produtos_fornecedores pf
         ON pf.produto_id = p.id
        AND pf.fornecedor_id = $1
+      LEFT JOIN itens_compra ic ON ic.produto_id = p.id
+      LEFT JOIN compras c
+        ON c.id = ic.compra_id
+       AND c.fornecedor_id = $1
       WHERE p.fornecedor_padrao_id = $1
          OR pf.fornecedor_id = $1
+         OR c.fornecedor_id = $1
       ORDER BY p.nome ASC
     `,
     [fornecedorId]
@@ -428,6 +447,10 @@ const hasFornecedorHistorico = async (fornecedorId) => {
     `
       SELECT EXISTS (
         SELECT 1 FROM movimentacoes_estoque WHERE fornecedor_id = $1
+        UNION
+        SELECT 1 FROM compras WHERE fornecedor_id = $1
+        UNION
+        SELECT 1 FROM contas_pagar WHERE fornecedor_id = $1
         UNION
         SELECT 1 FROM produtos WHERE fornecedor_padrao_id = $1
         UNION

@@ -6,7 +6,14 @@ const SIMPLE_ID_PATTERN = /^\d+$/;
 
 const VALID_STATUS_LOCAL = ["ATIVO", "INATIVO"];
 const VALID_TIPOS_LOCAL = ["DEPOSITO", "FILIAL", "PRATELEIRA", "TRANSITO"];
-const VALID_TIPOS_MOVIMENTACAO = ["ENTRADA", "SAIDA", "TRANSFERENCIA", "AJUSTE"];
+const VALID_TIPOS_MOVIMENTACAO = [
+  "ENTRADA",
+  "SAIDA",
+  "TRANSFERENCIA",
+  "AJUSTE",
+  "DEVOLUCAO_FORNECEDOR",
+  "DEVOLUCAO_CLIENTE"
+];
 const VALID_MOTIVOS_AJUSTE = ["CORRECAO", "CORRECAO_ERRO", "ERRO", "PERDA", "INVENTARIO"];
 
 const sanitizeString = (value) => {
@@ -200,6 +207,30 @@ const parseMovimentacaoPayload = (payload, tipoEsperado) => {
     if (localDestinoId) {
       validateEntityIdentifier(localDestinoId, "local_destino_id");
     }
+  }
+
+  if (tipoEsperado === "DEVOLUCAO_FORNECEDOR") {
+    if (!fornecedorId) {
+      throw new AppError("fornecedor_id obrigatorio para devolucao ao fornecedor", 400);
+    }
+
+    if (!localOrigemId) {
+      throw new AppError("local_origem_id obrigatorio para devolucao ao fornecedor", 400);
+    }
+
+    validateEntityIdentifier(localOrigemId, "local_origem_id");
+  }
+
+  if (tipoEsperado === "DEVOLUCAO_CLIENTE") {
+    if (fornecedorId) {
+      throw new AppError("Devolucao de cliente nao deve informar fornecedor", 400);
+    }
+
+    if (!localDestinoId) {
+      throw new AppError("local_destino_id obrigatorio para devolucao de cliente", 400);
+    }
+
+    validateEntityIdentifier(localDestinoId, "local_destino_id");
   }
 
   return {

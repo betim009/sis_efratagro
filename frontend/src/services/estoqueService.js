@@ -28,6 +28,21 @@ const estoqueService = {
     return response.data;
   },
 
+  registrarAjuste: async (data) => {
+    const response = await api.post(`${BASE}/movimentacoes/ajuste`, data);
+    return response.data;
+  },
+
+  registrarDevolucaoFornecedor: async (data) => {
+    const response = await api.post(`${BASE}/movimentacoes/devolucao-fornecedor`, data);
+    return response.data;
+  },
+
+  registrarDevolucaoCliente: async (data) => {
+    const response = await api.post(`${BASE}/movimentacoes/devolucao-cliente`, data);
+    return response.data;
+  },
+
   listarLocais: async (params = {}) => {
     const response = await api.get(`${BASE}/locais`, { params });
     return response.data;

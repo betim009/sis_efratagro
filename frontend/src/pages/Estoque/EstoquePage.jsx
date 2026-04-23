@@ -114,6 +114,9 @@ export default function EstoquePage() {
         ENTRADA: estoqueService.registrarEntrada,
         SAIDA: estoqueService.registrarSaida,
         TRANSFERENCIA: estoqueService.registrarTransferencia,
+        AJUSTE: estoqueService.registrarAjuste,
+        DEVOLUCAO_FORNECEDOR: estoqueService.registrarDevolucaoFornecedor,
+        DEVOLUCAO_CLIENTE: estoqueService.registrarDevolucaoCliente,
       }[data.tipo_movimentacao] || estoqueService.registrarEntrada;
 
       await handler(data);
@@ -178,7 +181,14 @@ export default function EstoquePage() {
       field: "tipo_movimentacao",
       headerName: "Tipo",
       renderCell: (row) => {
-        const colors = { ENTRADA: "success", SAIDA: "error", TRANSFERENCIA: "info", AJUSTE: "warning" };
+        const colors = {
+          ENTRADA: "success",
+          SAIDA: "error",
+          TRANSFERENCIA: "info",
+          AJUSTE: "warning",
+          DEVOLUCAO_FORNECEDOR: "error",
+          DEVOLUCAO_CLIENTE: "success",
+        };
         return <Chip label={row.tipo_movimentacao} size="small" color={colors[row.tipo_movimentacao] || "default"} />;
       },
     },
@@ -209,6 +219,9 @@ export default function EstoquePage() {
               </Button>
               <Button variant="outlined" onClick={() => openMovDialog("TRANSFERENCIA")}>
                 Transferência
+              </Button>
+              <Button variant="outlined" onClick={() => openMovDialog("AJUSTE")}>
+                Ajuste
               </Button>
             </Box>
           )

@@ -52,7 +52,32 @@ const listByFornecedor = async (fornecedorId) => {
   return result.rows;
 };
 
+const getFornecedorPrincipalByProduto = async (produtoId) => {
+  const result = await query(
+    `
+      SELECT
+        p.id AS produto_id,
+        p.public_id AS produto_public_id,
+        p.codigo AS produto_codigo,
+        p.nome AS produto_nome,
+        f.id AS fornecedor_id,
+        f.public_id AS fornecedor_public_id,
+        f.razao_social AS fornecedor_razao_social,
+        f.cpf_cnpj AS fornecedor_cpf_cnpj,
+        f.status AS fornecedor_status
+      FROM produtos p
+      LEFT JOIN fornecedores f ON f.id = p.fornecedor_padrao_id
+      WHERE p.id = $1
+      LIMIT 1
+    `,
+    [produtoId]
+  );
+
+  return result.rows[0] || null;
+};
+
 module.exports = {
   listByProduto,
-  listByFornecedor
+  listByFornecedor,
+  getFornecedorPrincipalByProduto
 };

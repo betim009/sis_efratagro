@@ -240,3 +240,204 @@ e da futura integração com o financeiro.
 
 Sem esse detalhamento, o fornecedor vira apenas um campo cadastral.
 Com esse detalhamento, ele passa a ser uma entidade real de negócio.
+
+
+========================================
+ANEXO A. FLUXO COMPLETO ATUAL
+========================================
+
+1. Cadastros base
+
+Antes de operar o fluxo completo, o sistema deve possuir:
+
+- Produto cadastrado
+- Fornecedor cadastrado
+- Local de estoque cadastrado
+
+
+2. Produto
+
+O produto representa o item do catálogo e não deve armazenar quantidade.
+
+Regras:
+- pode existir sem fornecedor inicialmente
+- pode ter 1 fornecedor principal
+- pode ter fornecedores secundários
+
+
+3. Fornecedor
+
+Fornecedor é quem vende para a empresa.
+
+Ele participa de:
+- compra
+- estoque
+- financeiro
+- relatórios
+
+Regras:
+- deve estar ativo para ser usado
+- não pode ser excluído se tiver histórico
+- pode ser inativado
+
+
+4. Relação produto e fornecedor
+
+Um produto pode ter 1 fornecedor principal e vários secundários.
+
+Regras:
+- o fornecedor principal deve ser sugerido automaticamente na compra
+- o histórico deve ser mantido
+
+
+5. Compra
+
+Fluxo:
+1. selecionar fornecedor
+2. selecionar produto
+3. informar quantidade
+4. informar custo
+5. selecionar local de destino
+6. confirmar compra
+
+Regras:
+- fornecedor obrigatório
+- fornecedor deve estar ativo
+- produto deve existir
+- local deve existir
+
+
+6. Entrada de estoque gerada pela compra
+
+A compra gera uma movimentação de estoque do tipo ENTRADA.
+
+Dados registrados:
+- produto
+- fornecedor
+- quantidade
+- custo
+- local de destino
+- usuário
+- data/hora
+
+Resultado:
+- saldo aumenta no local de destino
+
+
+7. Estoque
+
+O estoque não é salvo diretamente no produto.
+
+Saldo = entradas - saídas +/- ajustes
+
+O saldo deve ser sempre controlado por local.
+
+
+8. Saída por venda
+
+Fluxo:
+1. selecionar produto
+2. selecionar local de origem
+3. informar quantidade
+4. confirmar venda
+
+Regras:
+- não pode vender sem saldo
+- local de origem obrigatório
+
+Resultado:
+- estoque diminui
+- movimentação registrada
+
+
+9. Transferência
+
+Fluxo:
+1. produto
+2. local de origem
+3. local de destino
+4. quantidade
+
+Regras:
+- origem e destino não podem ser iguais
+- deve haver saldo suficiente na origem
+
+Resultado:
+- sai de um local
+- entra em outro local
+
+
+10. Ajuste
+
+Usado para:
+- erro
+- perda
+- inventário
+
+Regras:
+- não precisa de fornecedor
+- precisa de motivo
+
+
+11. Devoluções
+
+Devolução para fornecedor:
+- registra fornecedor como destino
+- reduz saldo do local de origem
+- exige fornecedor ativo
+
+Devolução de cliente:
+- não usa fornecedor
+- aumenta saldo no local de destino
+- pode registrar cliente para rastreabilidade
+
+
+12. Rastreabilidade
+
+Toda movimentação deve salvar:
+- tipo
+- produto
+- fornecedor quando houver
+- origem
+- destino
+- usuário
+- data/hora
+- motivo
+
+
+13. Integração com financeiro
+
+Quando a empresa compra, a operação pode gerar contas a pagar.
+
+Ligação esperada:
+Fornecedor -> Compra -> Financeiro
+
+
+14. Consultas importantes
+
+O sistema deve permitir consultar:
+- compras por fornecedor
+- produtos por fornecedor
+- estoque por local
+- histórico completo
+- custo por fornecedor
+
+
+15. Resumo
+
+Produto = o que a empresa vende
+Fornecedor = quem vende para a empresa
+Compra = entrada de estoque
+Venda = saída de estoque
+Local = onde está armazenado
+Estoque = resultado das movimentações
+
+
+16. Conclusão operacional
+
+O fluxo atual fica:
+
+Produto -> Fornecedor -> Compra -> Estoque -> Venda -> Financeiro
+
+Esse fluxo garante multi-local, fornecedor integrado, custo real,
+rastreabilidade, base para financeiro e histórico completo.

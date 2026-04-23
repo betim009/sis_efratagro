@@ -44,6 +44,32 @@ const getProdutoById = async (request, response, next) => {
   }
 };
 
+const getFornecedoresDoProduto = async (request, response, next) => {
+  try {
+    const result = await produtoService.getFornecedoresDoProduto(request.params.id);
+
+    return response.status(200).json({
+      status: "success",
+      data: result
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const getFornecedorPrincipal = async (request, response, next) => {
+  try {
+    const result = await produtoService.getFornecedorPrincipal(request.params.id);
+
+    return response.status(200).json({
+      status: "success",
+      data: result
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const updateProduto = async (request, response, next) => {
   try {
     const produto = await produtoService.updateProduto({
@@ -144,6 +170,8 @@ module.exports = {
   createProduto,
   listProdutos,
   getProdutoById,
+  getFornecedoresDoProduto,
+  getFornecedorPrincipal,
   updateProduto,
   inactivateProduto,
   listProdutosByStatus,

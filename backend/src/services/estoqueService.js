@@ -576,6 +576,148 @@ const registrarAjuste = async ({ payload, authenticatedUser, request }) => {
   }
 };
 
+const registrarDevolucaoFornecedor = async ({ payload, authenticatedUser, request }) => {
+  const parsedPayload = parseMovimentacaoPayload(payload, "DEVOLUCAO_FORNECEDOR");
+  const [produto, fornecedor, local] = await Promise.all([
+    assertProdutoAtivo(parsedPayload.produtoId),
+    assertFornecedorAtivo(parsedPayload.fornecedorId),
+    assertLocalAtivo(parsedPayload.localOrigemId, "local_origem_id")
+  ]);
+
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const saldo = await debitSaldo({
+      produtoId: produto.id,
+      localId: local.id,
+      quantidade: parsedPayload.quantidade,
+      client
+    });
+
+    const movimentacao = await movimentacaoEstoqueModel.createMovimentacao(
+      {
+        produtoId: produto.id,
+        fornecedorId: fornecedor.id,
+        localOrigemId: local.id,
+        localDestinoId: null,
+        usuarioId: authenticatedUser.id,
+        clienteId: null,
+        vendaId: null,
+        tipoMovimentacao: "DEVOLUCAO_FORNECEDOR",
+        quantidade: parsedPayload.quantidade,
+        motivo: parsedPayload.motivo,
+        observacoes: parsedPayload.observacoes
+      },
+      client
+    );
+
+    await client.query("COMMIT");
+
+    await registrarAuditoria({
+      authenticatedUser,
+      recordId: movimentacao.id,
+      previousData: {
+        local_origem_id: local.id,
+        fornecedor_destino_id: fornecedor.id
+      },
+      newData: {
+        tipo_movimentacao: "DEVOLUCAO_FORNECEDOR",
+        produto_id: produto.id,
+        produto_codigo: produto.codigo,
+        fornecedor_id: fornecedor.id,
+        fornecedor_razao_social: fornecedor.razao_social,
+        local_origem_id: local.id,
+        local_origem_codigo: local.codigo,
+        quantidade: parsedPayload.quantidade,
+        saldo_resultante: Number(saldo.quantidade)
+      },
+      descricao: "Devolucao para fornecedor registrada",
+      request
+    });
+
+    return {
+      movimentacao,
+      saldo
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const registrarDevolucaoCliente = async ({ payload, authenticatedUser, request }) => {
+  const parsedPayload = parseMovimentacaoPayload(payload, "DEVOLUCAO_CLIENTE");
+  const [produto, local, cliente] = await Promise.all([
+    assertProdutoAtivo(parsedPayload.produtoId),
+    assertLocalAtivo(parsedPayload.localDestinoId, "local_destino_id"),
+    assertClienteExists(parsedPayload.clienteId)
+  ]);
+
+  const client = await getClient();
+
+  try {
+    await client.query("BEGIN");
+
+    const saldo = await creditSaldo({
+      produtoId: produto.id,
+      localId: local.id,
+      quantidade: parsedPayload.quantidade,
+      client
+    });
+
+    const movimentacao = await movimentacaoEstoqueModel.createMovimentacao(
+      {
+        produtoId: produto.id,
+        fornecedorId: null,
+        localOrigemId: null,
+        localDestinoId: local.id,
+        usuarioId: authenticatedUser.id,
+        clienteId: cliente ? cliente.id : null,
+        vendaId: parsedPayload.vendaId,
+        tipoMovimentacao: "DEVOLUCAO_CLIENTE",
+        quantidade: parsedPayload.quantidade,
+        motivo: parsedPayload.motivo,
+        observacoes: parsedPayload.observacoes
+      },
+      client
+    );
+
+    await client.query("COMMIT");
+
+    await registrarAuditoria({
+      authenticatedUser,
+      recordId: movimentacao.id,
+      newData: {
+        tipo_movimentacao: "DEVOLUCAO_CLIENTE",
+        produto_id: produto.id,
+        produto_codigo: produto.codigo,
+        cliente_id: cliente ? cliente.id : null,
+        cliente_nome: cliente ? cliente.nome_razao_social : null,
+        local_destino_id: local.id,
+        local_destino_codigo: local.codigo,
+        quantidade: parsedPayload.quantidade,
+        saldo_resultante: Number(saldo.quantidade)
+      },
+      descricao: "Devolucao de cliente registrada",
+      request
+    });
+
+    return {
+      movimentacao,
+      saldo
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 const listarSaldos = async (queryParams) => {
   const filters = parseListFilters(queryParams);
   const [items, total] = await Promise.all([
@@ -657,6 +799,8 @@ module.exports = {
   registrarSaida,
   registrarTransferencia,
   registrarAjuste,
+  registrarDevolucaoFornecedor,
+  registrarDevolucaoCliente,
   listarSaldos,
   buscarSaldoPorProduto,
   buscarSaldoPorProdutoELocal,

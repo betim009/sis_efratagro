@@ -1,4 +1,5 @@
 const produtoModel = require("../models/produtoModel");
+const produtoFornecedorModel = require("../models/produtoFornecedorModel");
 const auditLogModel = require("../models/auditLogModel");
 const authService = require("./authService");
 const AppError = require("../utils/AppError");
@@ -115,6 +116,33 @@ const getProdutoById = async (produtoId) => {
   return mapProdutoResponse(produto);
 };
 
+const getFornecedoresDoProduto = async (produtoId) => {
+  const produto = await assertProdutoExists(produtoId);
+  const fornecedores = await produtoFornecedorModel.listByProduto(produto.id);
+
+  return {
+    produto: mapProdutoResponse(produto),
+    fornecedor_principal: produto.fornecedor_padrao_id
+      ? {
+          id: produto.fornecedor_padrao_id,
+          razao_social: produto.fornecedor_padrao_razao_social
+        }
+      : null,
+    fornecedores_secundarios: fornecedores.filter(
+      (item) => item.fornecedor_id !== produto.fornecedor_padrao_id
+    ),
+    vinculos: fornecedores
+  };
+};
+
+const getFornecedorPrincipal = async (produtoId) => {
+  const produto = await assertProdutoExists(produtoId);
+  const fornecedorPrincipal =
+    await produtoFornecedorModel.getFornecedorPrincipalByProduto(produto.id);
+
+  return fornecedorPrincipal;
+};
+
 const updateProduto = async ({
   produtoId,
   payload,
@@ -224,6 +252,8 @@ module.exports = {
   createProduto,
   listProdutos,
   getProdutoById,
+  getFornecedoresDoProduto,
+  getFornecedorPrincipal,
   updateProduto,
   inactivateProduto,
   listProdutosByStatus,
